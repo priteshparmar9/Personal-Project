@@ -136,7 +136,7 @@ function BuyerLogin() {
                   <Link to="../signup">Create new Account</Link>
                 </FormHelperText>
                 <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
+                  <Link to="../forgot_password">forgot password?</Link>
                 </FormHelperText>
               </VStack>
             </FormControl>

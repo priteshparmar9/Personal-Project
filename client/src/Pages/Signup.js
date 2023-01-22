@@ -34,19 +34,6 @@ function Signup() {
         alignItems="center"
         // position="fixed"
       >
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-        <ToastContainer />
         <Avatar bg="teal" />
         <Heading color="teal.400">Signup</Heading>
         <Tabs

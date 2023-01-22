@@ -8,8 +8,8 @@ import {
 } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const {
   Stack,
@@ -25,8 +25,8 @@ const {
   FormHelperText,
   Spinner,
   Textarea,
-  FormLabel,
   HStack,
+  useToast,
 } = require("@chakra-ui/react");
 
 function SellerSignup() {
@@ -38,6 +38,9 @@ function SellerSignup() {
     re_password: "",
     email: "",
     pic: Object,
+    contact_number: "",
+    description: "",
+    address: "",
   });
   const [pro_pic, setPic] = useState();
   const [otpSent, setOTP] = useState(false);
@@ -47,7 +50,16 @@ function SellerSignup() {
   async function submit(e) {
     e.preventDefault();
 
-    if (user.email && user.password && user.re_password && user.username) {
+    if (
+      user.email &&
+      user.password &&
+      user.re_password &&
+      user.username &&
+      user.address &&
+      user.contact_number &&
+      user.description &&
+      user.pic
+    ) {
       if (user.password !== user.re_password) {
         toast.warn("Both passwords should be same!", {
           position: "bottom-right",
@@ -75,6 +87,7 @@ function SellerSignup() {
             },
           })
           .then((res) => {
+            console.log(res);
             if (res.data.code === 100) {
               toast.warn(
                 "Email already registered! Please try with other email or sign in",
@@ -192,6 +205,19 @@ function SellerSignup() {
             boxShadow="md"
             borderRadius={"md"}
           >
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+            <ToastContainer />
             <FormControl>
               <InputGroup>
                 <InputLeftElement
@@ -200,7 +226,7 @@ function SellerSignup() {
                 />
                 <Input
                   type="text"
-                  placeholder="Store / Seller Name"
+                  placeholder="Seller Name"
                   disabled={submitted}
                   value={user.username}
                   onChange={(e) => {
@@ -272,7 +298,7 @@ function SellerSignup() {
                 />
                 <Input
                   type="email"
-                  placeholder="Business Email"
+                  placeholder="Email address"
                   disabled={submitted}
                   value={user.email}
                   onChange={(e) => {
@@ -296,12 +322,12 @@ function SellerSignup() {
                     type="number"
                     placeholder="Contact Number"
                     disabled={submitted}
-                    value={user.email}
+                    value={user.contact_number}
                     onChange={(e) => {
                       const { value } = e.target;
                       setUser({
                         ...user,
-                        email: value,
+                        contact_number: value,
                       });
                     }}
                   />
@@ -351,7 +377,16 @@ function SellerSignup() {
                 <Textarea
                   placeholder="Description of Seller"
                   size="sm"
+                  rows="2"
                   resize="vertical"
+                  disabled={submitted}
+                  value={user.description}
+                  onChange={(e) => {
+                    setUser({
+                      ...user,
+                      description: e.target.value,
+                    });
+                  }}
                 />
               </InputGroup>
             </FormControl>
@@ -361,7 +396,16 @@ function SellerSignup() {
                 <Textarea
                   placeholder="Address of Seller"
                   size="sm"
+                  rows="2"
                   resize="vertical"
+                  value={user.address}
+                  disabled={submitted}
+                  onChange={(e) => {
+                    setUser({
+                      ...user,
+                      address: e.target.value,
+                    });
+                  }}
                 />
               </InputGroup>
             </FormControl>

@@ -5,7 +5,14 @@ const OTPSchema = mongoose.Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
+    default: null,
+  },
+  seller: {
+    type: Schema.Types.ObjectId,
+    ref: "Seller",
+    required: false,
+    default: null,
   },
   otp: {
     type: Number,

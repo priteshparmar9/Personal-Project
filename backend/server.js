@@ -35,6 +35,10 @@ const userRouter = require("./routes/User");
 userRouter.use(bodyParser.json());
 app.use("/users", userRouter);
 
+const sellerRouter = require("./routes/Seller");
+sellerRouter.use(bodyParser.json());
+app.use("/sellers", sellerRouter);
+
 app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
 });

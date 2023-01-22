@@ -92,6 +92,11 @@ router.post("/signup", async (req, res) => {
       user.save();
 
       let otp = Math.floor(Math.random() * 1000000);
+      while (otp < 100000) {
+        otp++;
+        otp *= 10;
+      }
+      otp %= 1000000;
       let ot = new OTPS({
         user: user,
         otp: otp,
@@ -225,16 +230,19 @@ router.post("/forgot_password", async (req, res) => {
     });
     if (available_user) {
       let otp = Math.floor(Math.random() * 1000000);
+      while (otp < 100000) {
+        otp++;
+        otp *= 10;
+      }
+      otp %= 1000000;
       let ot = new OTPS({
         user: available_user,
         otp: otp,
       });
-      // ot.save();
+      ot.save();
       // console.log(ot._id.toString());
       const link =
-        process.env.FRONT_END_BASE_URL +
-        "/change_password/?id=" +
-        ot._id.toString();
+        process.env.FRONT_END_BASE_URL + "change_password/" + ot._id.toString();
       mailer(available_user.email, link);
       res.json({
         code: 200,
@@ -256,45 +264,60 @@ router.post("/forgot_password", async (req, res) => {
 
 router.post("/change_password", async (req, res) => {
   try {
-    let available_user = await User.findOne({
-      $or: [
-        { email: req.body.username },
-        {
-          username: req.body.username,
-        },
-      ],
-    });
-    if (available_user) {
-      const otp = await OTPS.findOne({
-        user: available_user,
-        otp: req.body.otp,
-      });
-      if (otp) {
-        available_user.password = crypto.AES.encrypt(
+    const otp = await OTPS.findById(req.body.id);
+    if (otp) {
+      let user = await User.findById(otp.user._id);
+      if (user) {
+        user.password = crypto.AES.encrypt(
           req.body.password,
           process.env.DC_KEY
         ).toString();
-        available_user.save();
-        otp.remove();
+        user.save();
+        otp.delete();
         res.json({
           code: 200,
           status: "Password Changed!",
         });
       } else {
         res.json({
-          code: 202,
-          status: "Incorrect OTP",
+          code: 201,
+          status: "User not found!",
         });
       }
     } else {
       res.json({
-        code: 201,
-        status: "User Not Found",
+        code: 202,
+        status: "Invalid Request!",
       });
     }
   } catch (error) {
     res.json({
       code: 500,
+      status: "Error Occured : " + error.message,
+    });
+  }
+});
+
+router.post("/validate_change_password", async (req, res) => {
+  try {
+    console.log("here");
+    const otp = await OTPS.find({ _id: req.body.id });
+    console.log(otp);
+    if (otp.length) {
+      res.json({
+        code: 200,
+        status: "Valid Request!",
+      });
+    } else {
+      res.json({
+        code: 201,
+        status: "Invalid Request!",
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      code: 201,
       status: "Error Occured : " + error.message,
     });
   }

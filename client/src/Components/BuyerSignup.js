@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 const {
@@ -188,6 +189,19 @@ function BuyerSignup() {
             boxShadow="md"
             borderRadius={"md"}
           >
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+            <ToastContainer />
             <FormControl>
               <InputGroup>
                 <InputLeftElement
