@@ -2,12 +2,13 @@ import {
   EditIcon,
   EmailIcon,
   LockIcon,
+  PhoneIcon,
   ViewIcon,
   ViewOffIcon,
 } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import axios from "axios";
 
 const {
@@ -23,9 +24,12 @@ const {
   VStack,
   FormHelperText,
   Spinner,
+  Textarea,
+  FormLabel,
+  HStack,
 } = require("@chakra-ui/react");
 
-function BuyerSignup() {
+function SellerSignup() {
   const [showPassword, setShowPass] = useState(false);
   const [otp, setOtp] = useState("");
   const [user, setUser] = useState({
@@ -58,7 +62,7 @@ function BuyerSignup() {
       } else {
         setShowPass(false);
         setSubmit(true);
-        const url = process.env.REACT_APP_BACKEND_BASE_URL + "users/signup/";
+        const url = process.env.REACT_APP_BACKEND_BASE_URL + "sellers/signup/";
         // setUser({ ...user, pic: pro_pic });
         user.pic = pro_pic;
         console.log(user);
@@ -134,7 +138,7 @@ function BuyerSignup() {
   async function otpsubmit(e) {
     e.preventDefault();
     setOTP(false);
-    const url = process.env.REACT_APP_BACKEND_BASE_URL + "users/check_otp/";
+    const url = process.env.REACT_APP_BACKEND_BASE_URL + "sellers/check_otp/";
     // console.log(user.email, otp);
     const res = await axios.post(url, { email: user.email, otp: otp });
     if (res.data.code === 100) {
@@ -196,7 +200,7 @@ function BuyerSignup() {
                 />
                 <Input
                   type="text"
-                  placeholder="User Name"
+                  placeholder="Store / Seller Name"
                   disabled={submitted}
                   value={user.username}
                   onChange={(e) => {
@@ -209,6 +213,57 @@ function BuyerSignup() {
                 />
               </InputGroup>
             </FormControl>
+            <HStack>
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    color="gray.300"
+                    children={<LockIcon color="gray.500" />}
+                  />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={user.password}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setUser({
+                        ...user,
+                        password: value,
+                      });
+                    }}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={handleShowClick}>
+                      {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    color="gray.300"
+                    children={<LockIcon color="gray.500" />}
+                  />
+                  <Input
+                    value={user.re_password}
+                    type="password"
+                    placeholder="Confirm Password"
+                    disabled={submitted}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setUser({
+                        ...user,
+                        re_password: value,
+                      });
+                    }}
+                  />
+                </InputGroup>
+              </FormControl>
+            </HStack>
             <FormControl>
               <InputGroup>
                 <InputLeftElement
@@ -217,7 +272,7 @@ function BuyerSignup() {
                 />
                 <Input
                   type="email"
-                  placeholder="email address"
+                  placeholder="Business Email"
                   disabled={submitted}
                   value={user.email}
                   onChange={(e) => {
@@ -230,88 +285,83 @@ function BuyerSignup() {
                 />
               </InputGroup>
             </FormControl>
-            <FormControl>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  color="gray.300"
-                  children={<LockIcon color="gray.500" />}
-                />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={user.password}
-                  disabled={submitted}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setUser({
-                      ...user,
-                      password: value,
-                    });
-                  }}
-                />
-                <InputRightElement width="4.5rem">
-                  <Button h="1.75rem" size="sm" onClick={handleShowClick}>
-                    {showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <FormControl>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  color="gray.300"
-                  children={<LockIcon color="gray.500" />}
-                />
-                <Input
-                  value={user.re_password}
-                  type="password"
-                  placeholder="Confirm Password"
-                  disabled={submitted}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setUser({
-                      ...user,
-                      re_password: value,
-                    });
-                  }}
-                />
-              </InputGroup>
-            </FormControl>
-            <FormControl>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  children={<EditIcon color="gray.500" />}
-                />
-                <Input
-                  pt={1}
-                  // value={user.pic}
-                  type="file"
-                  placeholder="Upload profile picture"
-                  disabled={submitted}
-                  onChange={(e) => {
-                    var regexp = /\.([0-9a-z]+)(?:[?#]|$)/i;
-                    var extension = e.target.value.match(regexp);
+            <HStack>
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<PhoneIcon color="gray.500" />}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Contact Number"
+                    disabled={submitted}
+                    value={user.email}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setUser({
+                        ...user,
+                        email: value,
+                      });
+                    }}
+                  />
+                </InputGroup>
+              </FormControl>
 
-                    if (
-                      extension[0] === ".jpg" ||
-                      extension[0] === ".JPG" ||
-                      extension[0] === ".png" ||
-                      extension[0] === ".PNG" ||
-                      extension[0] === ".gif" ||
-                      extension[0] === ".GIF"
-                    ) {
-                      setPic(e.target.files[0]);
-                      console.log(pro_pic);
-                    } else {
-                      toast("Only PNG/JPG/GIF file are supported!");
-                      setPic({});
-                      console.log("F");
-                      // console.log(pro_pic);
-                    }
-                  }}
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<EditIcon color="gray.500" />}
+                  />
+                  <Input
+                    pt={1}
+                    // value={user.pic}
+                    type="file"
+                    placeholder="Upload profile picture"
+                    disabled={submitted}
+                    onChange={(e) => {
+                      var regexp = /\.([0-9a-z]+)(?:[?#]|$)/i;
+                      var extension = e.target.value.match(regexp);
+
+                      if (
+                        extension[0] === ".jpg" ||
+                        extension[0] === ".JPG" ||
+                        extension[0] === ".png" ||
+                        extension[0] === ".PNG" ||
+                        extension[0] === ".gif" ||
+                        extension[0] === ".GIF"
+                      ) {
+                        setPic(e.target.files[0]);
+                        console.log(pro_pic);
+                      } else {
+                        toast("Only PNG/JPG/GIF file are supported!");
+                        setPic({});
+                        console.log("F");
+                        // console.log(pro_pic);
+                      }
+                    }}
+                  />
+                </InputGroup>
+              </FormControl>
+            </HStack>
+            <FormControl>
+              {/* <FormLabel>Description</FormLabel> */}
+              <InputGroup>
+                <Textarea
+                  placeholder="Description of Seller"
+                  size="sm"
+                  resize="vertical"
+                />
+              </InputGroup>
+            </FormControl>
+            <FormControl>
+              {/* <FormLabel>Address</FormLabel> */}
+              <InputGroup>
+                <Textarea
+                  placeholder="Address of Seller"
+                  size="sm"
+                  resize="vertical"
                 />
               </InputGroup>
             </FormControl>
@@ -337,11 +387,8 @@ function BuyerSignup() {
             )}
             <FormControl>
               <VStack>
-                <FormHelperText textAlign="left">
+                <FormHelperText textAlign="left" pb="2">
                   <Link to="../login">Already have an account?</Link>
-                </FormHelperText>
-                <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
                 </FormHelperText>
               </VStack>
             </FormControl>
@@ -361,4 +408,4 @@ function BuyerSignup() {
     </>
   );
 }
-export default BuyerSignup;
+export default SellerSignup;

@@ -8,7 +8,7 @@ import Signup from "./Pages/Signup";
 
 function App() {
   return (
-    <Box className="App">
+    <Box className="App" bgColor="InfoBackground">
       <div>
         <Center>
           <BrowserRouter>

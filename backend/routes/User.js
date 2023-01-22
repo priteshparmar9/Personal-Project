@@ -21,15 +21,9 @@ router.post("/signup", async (req, res) => {
         status: "Email already registered!",
       });
     } else {
-      // console.log(req.files.pic);
-      // const data = req.files.pic;
-      // console.log(data);
-      // const pic_name = pic.name;
       let up_path =
         `/PersonalProjectEA/ProfilePictures/${req.body.username}_` +
         req.files.pic.name;
-
-      // Dropbox upload
 
       const uploadRequest = https.request(
         "https://content.dropboxapi.com/2/files/upload",
@@ -219,10 +213,91 @@ router.post("/check_otp", async (req, res) => {
   }
 });
 
-// const data = '{"limit": 1000}';
+router.post("/forgot_password", async (req, res) => {
+  try {
+    let available_user = await User.findOne({
+      $or: [
+        { email: req.body.username },
+        {
+          username: req.body.username,
+        },
+      ],
+    });
+    if (available_user) {
+      let otp = Math.floor(Math.random() * 1000000);
+      let ot = new OTPS({
+        user: available_user,
+        otp: otp,
+      });
+      // ot.save();
+      // console.log(ot._id.toString());
+      const link =
+        process.env.FRONT_END_BASE_URL +
+        "/change_password/?id=" +
+        ot._id.toString();
+      mailer(available_user.email, link);
+      res.json({
+        code: 200,
+        status: "Otp sent!",
+      });
+    } else {
+      res.json({
+        code: 201,
+        status: "User Not Found",
+      });
+    }
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "Error Occured : " + error.message,
+    });
+  }
+});
 
-router.post("/check_pic", async (req, res) => {
-  // console.log(req.files.pro_pic);
+router.post("/change_password", async (req, res) => {
+  try {
+    let available_user = await User.findOne({
+      $or: [
+        { email: req.body.username },
+        {
+          username: req.body.username,
+        },
+      ],
+    });
+    if (available_user) {
+      const otp = await OTPS.findOne({
+        user: available_user,
+        otp: req.body.otp,
+      });
+      if (otp) {
+        available_user.password = crypto.AES.encrypt(
+          req.body.password,
+          process.env.DC_KEY
+        ).toString();
+        available_user.save();
+        otp.remove();
+        res.json({
+          code: 200,
+          status: "Password Changed!",
+        });
+      } else {
+        res.json({
+          code: 202,
+          status: "Incorrect OTP",
+        });
+      }
+    } else {
+      res.json({
+        code: 201,
+        status: "User Not Found",
+      });
+    }
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "Error Occured : " + error.message,
+    });
+  }
 });
 
 module.exports = router;

@@ -337,11 +337,8 @@ function BuyerSignup() {
             )}
             <FormControl>
               <VStack>
-                <FormHelperText textAlign="left">
+                <FormHelperText textAlign="left" pb="2">
                   <Link to="../login">Already have an account?</Link>
-                </FormHelperText>
-                <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
                 </FormHelperText>
               </VStack>
             </FormControl>

@@ -9,17 +9,18 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BuyerSignup from "../Components/BuyerSignup";
+import SellerSignup from "../Components/SellerSignup";
 
 function Signup() {
+  const [height, setHeight] = useState("100vh");
   return (
     <Flex
       flexDirection="column"
-      width="100wh"
-      height="100vh"
+      minH="100vh"
       backgroundColor="black.100"
       justifyContent="center"
       alignItems="center"
@@ -48,7 +49,13 @@ function Signup() {
         <ToastContainer />
         <Avatar bg="teal" />
         <Heading color="teal.400">Signup</Heading>
-        <Tabs variant="soft-rounded" colorScheme="green" isFitted p="4">
+        <Tabs
+          variant="soft-rounded"
+          colorScheme="green"
+          isFitted
+          p="4"
+          minW="35vw"
+        >
           <TabList>
             <Tab>Buyer</Tab>
             <Tab>Seller</Tab>
@@ -57,7 +64,9 @@ function Signup() {
             <TabPanel>
               <BuyerSignup />
             </TabPanel>
-            <TabPanel>{/* <SellerLogin /> */}</TabPanel>
+            <TabPanel>
+              <SellerSignup />
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Stack>
