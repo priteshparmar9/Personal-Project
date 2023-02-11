@@ -7,6 +7,7 @@ const axios = require("axios");
 const User = require("../models/User");
 const OTPS = require("../models/OTP");
 
+const temp = require("../services/BackgroundServices");
 const mailer = require("../services/emails");
 
 router.post("/signup", async (req, res) => {
@@ -51,7 +52,7 @@ router.post("/signup", async (req, res) => {
 
       console.log("Uploaded to dropbox");
 
-      // Finding url for the uploaded image
+      // Finding url of the uploaded image
       let pic_addr = "";
       let i = 100;
       while (i--) {
@@ -102,6 +103,7 @@ router.post("/signup", async (req, res) => {
         otp: otp,
       });
       ot.save();
+      temp();
       mailer(req.body.email, otp);
       res.json({
         code: 200,
@@ -220,6 +222,7 @@ router.post("/check_otp", async (req, res) => {
 
 router.post("/forgot_password", async (req, res) => {
   try {
+    console.log(req.body.username);
     let available_user = await User.findOne({
       $or: [
         { email: req.body.username },
@@ -240,6 +243,7 @@ router.post("/forgot_password", async (req, res) => {
         otp: otp,
       });
       ot.save();
+      temp();
       // console.log(ot._id.toString());
       const link =
         process.env.FRONT_END_BASE_URL + "change_password/" + ot._id.toString();
@@ -273,7 +277,7 @@ router.post("/change_password", async (req, res) => {
           process.env.DC_KEY
         ).toString();
         user.save();
-        otp.delete();
+        otp.remove();
         res.json({
           code: 200,
           status: "Password Changed!",

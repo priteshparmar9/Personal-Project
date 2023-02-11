@@ -11,7 +11,7 @@ const db_url = process.env.DATABASE_URL;
 
 const app = express();
 const cors = require("cors");
-
+  
 app.use(cors());
 app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: true }));
