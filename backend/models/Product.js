@@ -21,6 +21,7 @@ const ProductSchema = mongoose.Schema({
   },
   currentPrice: {
     type: Number,
+    default: 0,
   },
   minimumPremium: {
     type: Number,

@@ -11,7 +11,7 @@ const db_url = process.env.DATABASE_URL;
 
 const app = express();
 const cors = require("cors");
-  
+
 app.use(cors());
 app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,6 +38,10 @@ app.use("/users", userRouter);
 const sellerRouter = require("./routes/Seller");
 sellerRouter.use(bodyParser.json());
 app.use("/sellers", sellerRouter);
+
+const productRouter = require("./routes/Products");
+productRouter.use(bodyParser.json());
+app.use("/products", productRouter);
 
 app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
