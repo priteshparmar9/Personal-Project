@@ -6,9 +6,78 @@ const axios = require("axios");
 
 const User = require("../models/User");
 const OTPS = require("../models/OTP");
+const SigninData = require("../models/SignInData");
 
 const temp = require("../services/BackgroundServices");
 const mailer = require("../services/emails");
+
+// Login function's code 200 means that user is authenticated and it also sends token to store at front-end(user's local storage)
+// Code 201 means invalid credentials
+// Code 500 means internal server error
+router.post("/login", async (req, res) => {
+  try {
+    const available_users = await User.findOne({
+      $or: [
+        { email: req.body.username },
+        {
+          username: req.body.username,
+        },
+      ],
+    });
+    if (available_users) {
+      if (
+        crypto.AES.decrypt(
+          available_users.password,
+          process.env.DC_KEY
+        ).toString(crypto.enc.Utf8) === req.body.password
+      ) {
+        console.log(available_users);
+        let signindata = SigninData({
+          user: available_users,
+          time: Date(),
+          ip: req.ip,
+        });
+        signindata.save();
+        res.json({
+          code: 200,
+          token: crypto.AES.encrypt(
+            JSON.stringify({
+              isLoggedIn: true,
+              email: crypto.AES.encrypt(
+                available_users.email,
+                process.env.DC_KEY
+              ).toString(),
+              username: crypto.AES.encrypt(
+                available_users.username,
+                process.env.DC_KEY
+              ).toString(),
+              time: Date(),
+            }),
+            process.env.DC_KEY
+          ).toString(),
+          // process.env.DC_KEY
+
+          status: "Login Successful",
+        });
+      } else {
+        res.json({
+          code: 201,
+          status: "Invalid Credentials",
+        });
+      }
+    } else {
+      res.json({
+        code: 201,
+        status: "Invalid Credentials",
+      });
+    }
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "Error Occured : " + error.message,
+    });
+  }
+});
 
 router.post("/signup", async (req, res) => {
   console.log("Signup Called");
@@ -115,68 +184,6 @@ router.post("/signup", async (req, res) => {
     res.send({
       code: 400,
       status: error.message,
-    });
-  }
-});
-
-// Login function's code 200 means that user is authenticated and it also sends token to store at front-end(user's local storage)
-// Code 201 means invalid credentials
-// Code 500 means internal server error
-router.post("/login", async (req, res) => {
-  try {
-    const available_users = await User.findOne({
-      $or: [
-        { email: req.body.username },
-        {
-          username: req.body.username,
-        },
-      ],
-    });
-    if (available_users) {
-      if (
-        crypto.AES.decrypt(
-          available_users.password,
-          process.env.DC_KEY
-        ).toString(crypto.enc.Utf8) === req.body.password
-      ) {
-        console.log(available_users);
-        res.json({
-          code: 200,
-          token: crypto.AES.encrypt(
-            JSON.stringify({
-              isLoggedIn: true,
-              email: crypto.AES.encrypt(
-                available_users.email,
-                process.env.DC_KEY
-              ).toString(),
-              username: crypto.AES.encrypt(
-                available_users.username,
-                process.env.DC_KEY
-              ).toString(),
-              time: Date(),
-            }),
-            process.env.DC_KEY
-          ).toString(),
-          // process.env.DC_KEY
-
-          status: "Login Successful",
-        });
-      } else {
-        res.json({
-          code: 201,
-          status: "Invalid Credentials",
-        });
-      }
-    } else {
-      res.json({
-        code: 201,
-        status: "Invalid Credentials",
-      });
-    }
-  } catch (error) {
-    res.json({
-      code: 500,
-      status: "Error Occured : " + error.message,
     });
   }
 });
@@ -324,6 +331,39 @@ router.post("/validate_change_password", async (req, res) => {
       code: 201,
       status: "Error Occured : " + error.message,
     });
+  }
+});
+
+router.post("/validateToken", async (req, res) => {
+  try {
+    const token = req.body.token;
+    const token_data = JSON.parse(
+      crypto.AES.decrypt(token, process.env.DC_KEY).toString(crypto.enc.Utf8)
+    );
+    console.log(token_data);
+    const available_users = await User.findOne({
+      $and: [
+        {
+          email: crypto.AES.decrypt(
+            token_data.email,
+            process.env.DC_KEY
+          ).toString(crypto.enc.Utf8),
+        },
+        {
+          username: crypto.AES.decrypt(
+            token_data.username,
+            process.env.DC_KEY
+          ).toString(crypto.enc.Utf8),
+        },
+      ],
+    });
+    if (available_users) {
+      res.status(200).json({ message: "Valid Token" });
+    } else {
+      throw err;
+    }
+  } catch (err) {
+    res.status(400).json({ message: "Invalid Token" });
   }
 });
 

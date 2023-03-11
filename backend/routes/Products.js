@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 router.post("/add_product", async (req, res) => {
   try {
     let message = req.body.token;
-    let data = JSON.parse(  
+    let data = JSON.parse(
       crypto.AES.decrypt(message, process.env.DC_KEY).toString(crypto.enc.Utf8)
     );
     const seller = crypto.AES.decrypt(data.seller, process.env.DC_KEY).toString(
@@ -69,6 +69,15 @@ router.post("/upload_test", async (req, res) => {
     console.log(url);
     if (url.length == req.files.pic.length) res.send(url);
   });
+});
+
+router.get("/getproduct/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    res.status(200).json({ product: product });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
 module.exports = router;
