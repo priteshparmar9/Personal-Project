@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const crypto = require("crypto-js");
-const https = require("https");
-const axios = require("axios");
 const uploadPic = require("./Dropbox");
 
 const Seller = require("../models/Seller");

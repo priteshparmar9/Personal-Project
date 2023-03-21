@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
-
 mongoose.set("strictQuery", true);
 
 require("dotenv").config();
@@ -43,6 +42,30 @@ const productRouter = require("./routes/Products");
 productRouter.use(bodyParser.json());
 app.use("/products", productRouter);
 
-app.listen(process.env.PORT || 8080, () => {
+const server = app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
 });
+// const server = http.createServer(app);
+const io = require("socket.io")({
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection", (socket) => {
+  console.log("client connected: ", socket.id);
+
+  socket.on("join", (data) => {
+    console.log("Joining : ", data);
+    socket.join(data);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(reason);
+  });
+  socket.on("increment", (res) => {
+    console.log(res);
+    socket.to(res._id).emit("inc_done", { price: res.price });
+  });
+});
+io.listen(8081);

@@ -203,4 +203,13 @@ router.post("/is_seller", async (req, res) => {
   }
 });
 
+router.get("/getseller/:id", async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id);
+    res.status(200).json({ seller: seller });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const crypto = require("crypto-js");
 const https = require("https");
+const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
 const User = require("../models/User");
@@ -38,27 +39,24 @@ router.post("/login", async (req, res) => {
           ip: req.ip,
         });
         signindata.save();
-        res.json({
-          code: 200,
-          token: crypto.AES.encrypt(
-            JSON.stringify({
-              isLoggedIn: true,
-              email: crypto.AES.encrypt(
-                available_users.email,
-                process.env.DC_KEY
-              ).toString(),
-              username: crypto.AES.encrypt(
-                available_users.username,
-                process.env.DC_KEY
-              ).toString(),
-              time: Date(),
-            }),
-            process.env.DC_KEY
-          ).toString(),
-          // process.env.DC_KEY
+        try {
+          res.json({
+            code: 200,
+            token: jwt.sign(
+              {
+                username: available_users.username,
+                email: available_users.email,
+              },
+              process.env.DC_KEY.toString(),
+              { expiresIn: "48h" }
+            ),
+            // process.env.DC_KEY
 
-          status: "Login Successful",
-        });
+            status: "Login Successful",
+          });
+        } catch (err) {
+          console.log(err.message);
+        }
       } else {
         res.json({
           code: 201,
@@ -336,34 +334,27 @@ router.post("/validate_change_password", async (req, res) => {
 
 router.post("/validateToken", async (req, res) => {
   try {
-    const token = req.body.token;
-    const token_data = JSON.parse(
-      crypto.AES.decrypt(token, process.env.DC_KEY).toString(crypto.enc.Utf8)
+    console.log(
+      jwt.verify(
+        req.body.token,
+        process.env.DC_KEY,
+        async function (err, decoded) {
+          if (err) {
+            res.status(205).json({ message: "Invalid Token" });
+          }
+          const user = await User.find({
+            $and: [{ email: decoded.email }],
+          });
+          if (user) {
+            res.status(200).json({ message: "Valid Token" });
+          } else {
+            res.status(205).json({ message: "Invalid Token" });
+          }
+        }
+      )
     );
-    console.log(token_data);
-    const available_users = await User.findOne({
-      $and: [
-        {
-          email: crypto.AES.decrypt(
-            token_data.email,
-            process.env.DC_KEY
-          ).toString(crypto.enc.Utf8),
-        },
-        {
-          username: crypto.AES.decrypt(
-            token_data.username,
-            process.env.DC_KEY
-          ).toString(crypto.enc.Utf8),
-        },
-      ],
-    });
-    if (available_users) {
-      res.status(200).json({ message: "Valid Token" });
-    } else {
-      throw err;
-    }
-  } catch (err) {
-    res.status(400).json({ message: "Invalid Token" });
+  } catch (error) {
+    res.status(205).json({ message: "Invalid Token" });
   }
 });
 
