@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const crypto = require("crypto-js");
 const uploadPic = require("./Dropbox");
+const TokenValidator = require("../services/TokenValidator");
 
 const Seller = require("../models/Seller");
 const Product = require("../models/Product");
 
-router.get("/", async (req, res) => {
+router.get("/", TokenValidator, async (req, res) => {
+  // console.log("Here");
   try {
     let products = await Product.find();
     res.status(200).send(products);

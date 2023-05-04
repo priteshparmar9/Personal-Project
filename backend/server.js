@@ -2,14 +2,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
-mongoose.set("strictQuery", true);
+const app = express();
+const socketService = require("./services/SocketService");
+const cors = require("cors");
 
 require("dotenv").config();
-
 const db_url = process.env.DATABASE_URL;
 
-const app = express();
-const cors = require("cors");
+mongoose.set("strictQuery", true);
 
 app.use(cors());
 app.use(fileUpload());
@@ -39,33 +39,12 @@ sellerRouter.use(bodyParser.json());
 app.use("/sellers", sellerRouter);
 
 const productRouter = require("./routes/Products");
+const SocketService = require("./services/SocketService");
 productRouter.use(bodyParser.json());
 app.use("/products", productRouter);
 
 const server = app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
 });
-// const server = http.createServer(app);
-const io = require("socket.io")({
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-io.on("connection", (socket) => {
-  console.log("client connected: ", socket.id);
 
-  socket.on("join", (data) => {
-    console.log("Joining : ", data);
-    socket.join(data);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log(reason);
-  });
-  socket.on("increment", (res) => {
-    console.log(res);
-    socket.to(res._id).emit("inc_done", { price: res.price });
-  });
-});
-io.listen(8081);
+SocketService(server);

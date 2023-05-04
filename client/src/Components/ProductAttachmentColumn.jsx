@@ -4,7 +4,7 @@ import React, { useState } from "react";
 const ProductAttachmentColumn = (props) => {
   const attachments = props.attachments;
   const [bigImage, setBigImage] = useState(attachments[0].toString());
-  console.log(attachments);
+  // console.log(attachments);
   return (
     <Center>
       <Grid templateColumns="repeat(8, 1fr)">

@@ -30,7 +30,7 @@ import ProductAttachmentColumn from "../Components/ProductAttachmentColumn";
 import Error from "./Error";
 // import { FaWindowRestore } from "react-icons/fa";
 
-const socket = io("http://localhost:8081");
+const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -82,6 +82,7 @@ const ProductPage = () => {
     fun();
   });
   useEffect(() => {
+    socket.emit("join", id);
     // socket.on("connect", () => console.log(socket));
     socket.on("inc_done", (res) => {
       setVariable(res.price);
@@ -142,15 +143,14 @@ const ProductPage = () => {
                 id="audio"
                 src="http://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg"
               ></audio>
-              <Button
+              {/* <Button
                 onClick={() => {
-                  socket.emit("join", product._id);
                   setDisable(true);
                 }}
                 disabled={isDisabled}
               >
                 Get Live Feed
-              </Button>
+              </Button> */}
             </GridItem>
           </Grid>
           <Divider mt={5} />
