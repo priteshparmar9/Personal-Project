@@ -11,8 +11,23 @@ import {
 } from "@chakra-ui/react";
 import BuyerLogin from "../Components/BuyerLogin";
 import SellerLogin from "../Components/SellerLogin";
+import { useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    let token = window.localStorage.getItem("token");
+    if (token) {
+      let url = process.env.REACT_APP_BACKEND_BASE_URL + "users/validateToken";
+      axios.post(url, { token: token }).then((res) => {
+        if (res.status == 200) {
+          navigate("/");
+        }
+      });
+    }
+  });
   return (
     <Flex
       flexDirection="column"

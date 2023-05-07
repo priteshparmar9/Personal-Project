@@ -15,7 +15,7 @@ function AddItem() {
         token: window.localStorage.getItem("eauc_token"),
       })
       .then((res) => {
-        if (!res.data) {
+        if (res.status !== 200) {
           navigate("/");
         }
       });

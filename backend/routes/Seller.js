@@ -3,10 +3,9 @@ const router = express.Router();
 const crypto = require("crypto-js");
 const https = require("https");
 const axios = require("axios");
-
+const jwt = require("jsonwebtoken");
 const Seller = require("../models/Seller");
 const OTPS = require("../models/OTP");
-
 const mailer = require("../services/emails");
 const temp = require("../services/BackgroundServices");
 
@@ -124,6 +123,7 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    // console.log(req.body);
     const available_users = await Seller.findOne({
       $or: [
         { email: req.body.username },
@@ -132,6 +132,7 @@ router.post("/login", async (req, res) => {
         },
       ],
     });
+    // console.log(available_users);
     if (available_users) {
       if (
         crypto.AES.decrypt(
@@ -139,24 +140,18 @@ router.post("/login", async (req, res) => {
           process.env.DC_KEY
         ).toString(crypto.enc.Utf8) === req.body.password
       ) {
-        console.log(available_users);
+        // console.log(available_users);
         res.json({
           code: 200,
-          token: crypto.AES.encrypt(
-            JSON.stringify({
-              isLoggedIn: true,
-              email: crypto.AES.encrypt(
-                available_users.email,
-                process.env.DC_KEY
-              ).toString(),
-              seller: crypto.AES.encrypt(
-                available_users.username,
-                process.env.DC_KEY
-              ).toString(),
-              time: Date(),
-            }),
-            process.env.DC_KEY
-          ).toString(),
+          token: jwt.sign(
+            {
+              _id: available_users._id,
+              username: available_users.username,
+              email: available_users.email,
+            },
+            process.env.DC_KEY.toString(),
+            { expiresIn: "48h" }
+          ),
           // process.env.DC_KEY
 
           status: "Login Successful",
@@ -182,24 +177,22 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/is_seller", async (req, res) => {
-  let message = req.body.token;
   try {
-    let data = JSON.parse(
-      crypto.AES.decrypt(message, process.env.DC_KEY).toString(crypto.enc.Utf8)
-    );
-    let seller = crypto.AES.decrypt(data.seller, process.env.DC_KEY).toString(
-      crypto.enc.Utf8
-    );
-    let sel = await Seller.find({
-      username: seller,
+    let token = req.body.token;
+    jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
+      if (err) {
+        res.status(205).json({ message: "Invalid Token" });
+      }
+      const user = await Seller.findById(decoded._id);
+      if (user) {
+        console.log("Sending to next");
+        res.status(200).json({ message: "Verified" });
+      } else {
+        res.status(205).json({ message: "Invalid Token" });
+      }
     });
-    if (sel) {
-      res.send(true);
-    } else {
-      res.send(false);
-    }
-  } catch (err) {
-    res.send(false);
+  } catch (error) {
+    res.status(205).json({ message: "Invalid Token" });
   }
 });
 

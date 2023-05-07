@@ -35,7 +35,7 @@ module.exports = async function uploadPic(username, pic) {
     let i = 100;
     while (i--) {
       try {
-        console.log("Getting photo url");
+        // console.log("Getting photo url");
         const response = await axios.post(
           "https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings",
           {
@@ -56,10 +56,10 @@ module.exports = async function uploadPic(username, pic) {
         pic_addr = response.data.url.replace("dl=0", "raw=1");
         break;
       } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
       }
     }
-    console.log(pic_addr);
+    // console.log(pic_addr);
     return pic_addr;
   } catch (err) {
     return err.message;

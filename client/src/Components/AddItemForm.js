@@ -1,6 +1,7 @@
 import { EditIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormLabel,
@@ -14,36 +15,100 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Spinner,
   Stack,
   Tag,
   TagCloseButton,
   Textarea,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 const AddItemForm = () => {
+  const [product, setProduct] = useState({
+    title: "",
+    basePrice: 100,
+    minimumPremium: 2,
+    description: "",
+    category: [],
+    endTime: Date,
+    attachments: [],
+  });
   const [categories, setCategory] = useState([]);
   const [catInput, setCatInput] = useState("");
+  const [submitted, setSubmit] = useState(false);
+
   function categoryHandler(e) {
     setCatInput(e.target.value);
     let arr = catInput.split("#");
     setCategory(arr);
-    // console.log(categories);
     arr = [];
     for (let i = 0; i < categories.length; i++) {
-      console.log(arr);
       if (categories[i] != "" && categories[i] != " ") {
         arr.push(categories[i]);
       }
     }
-    // setCategory(arr);
-    //   console.log(categories)
-    // }
+    setProduct({ ...product, category: categories });
   }
-  function removeItem(cat) {
-    console.log(cat, "Removed");
-  }
+
+  const handler = (e) => {
+    // console.log(e);
+    const { name, value } = e.target;
+    setProduct({ ...product, [name]: value });
+    // console.log(product);
+  };
+
+  const Submit = (e) => {
+    e.preventDefault();
+    setSubmit(true);
+    const url = process.env.REACT_APP_BACKEND_BASE_URL + "products/add_product";
+    const formData = new FormData();
+    formData.append("title", product.title);
+    for (let i = 0; i < product.attachments.length; i++) {
+      formData.append("attachments", product.attachments[i]);
+    }
+    formData.append("endTime", product.endTime);
+    formData.append("category", product.category);
+    formData.append("description", product.description);
+    formData.append("minimumPremium", product.minimumPremium);
+    formData.append("basePrice", product.basePrice);
+    axios
+      .post(url, formData, {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: `Bearer ${window.localStorage.getItem("eauc_token")}`,
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setProduct({
+            title: "",
+            basePrice: 100,
+            minimumPremium: 2,
+            description: "",
+            category: [],
+            endTime: Date,
+            attachments: [],
+          });
+          toast.success(
+            "Congrats! Your item has been added to the database and soon will be available on products page",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: true,
+              closeOnClick: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            }
+          );
+          setSubmit(false);
+        }
+      });
+  };
+
   return (
     <>
       <Flex
@@ -55,7 +120,7 @@ const AddItemForm = () => {
         overflowY={"hidden"}
       >
         <Box>
-          <form>
+          <form method="post">
             <Stack
               spacing={4}
               p="1rem"
@@ -64,22 +129,16 @@ const AddItemForm = () => {
               boxShadow="lg"
               borderRadius={"md"}
             >
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
               <ToastContainer />
               <FormControl isRequired>
                 <FormLabel>Product Name</FormLabel>
-                <Input placeholder="Product Name" />
+                <Input
+                  placeholder="Product Name"
+                  name="title"
+                  value={product.title}
+                  onChange={handler}
+                  disabled={submitted}
+                />
               </FormControl>
               <HStack>
                 <FormControl isRequired>
@@ -90,7 +149,11 @@ const AddItemForm = () => {
                       defaultValue={0.0}
                       precision={2}
                       step={10}
+                      disabled={submitted}
                       w="100%"
+                      name="basePrice"
+                      value={product.basePrice}
+                      onChange={(e) => setProduct({ ...product, basePrice: e })}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -109,6 +172,12 @@ const AddItemForm = () => {
                       precision={2}
                       step={10}
                       w="100%"
+                      disabled={submitted}
+                      name="minimumPremium"
+                      value={product.minimumPremium}
+                      onChange={(e) =>
+                        setProduct({ ...product, minimumPremium: e })
+                      }
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -123,8 +192,12 @@ const AddItemForm = () => {
                 <FormLabel>End Time</FormLabel>
                 <Input
                   type="datetime-local"
+                  disabled={submitted}
+                  value={product.endTime}
                   min={new Date().toISOString().slice(0, 16)}
                   placeholder="End Time"
+                  name="endTime"
+                  onChange={handler}
                 />
               </FormControl>
               <FormControl>
@@ -132,9 +205,13 @@ const AddItemForm = () => {
                 <Textarea
                   placeholder="Here is a sample placeholder"
                   size="sm"
+                  name="description"
+                  onChange={handler}
+                  value={product.description}
+                  disabled={submitted}
                 />
               </FormControl>
-              <FormControl>
+              <FormControl disabled={submitted}>
                 <FormLabel>Categories</FormLabel>
                 {categories.map((cat) => {
                   return (
@@ -155,6 +232,7 @@ const AddItemForm = () => {
                   type="text"
                   placeholder="Enter Categories"
                   onChangeCapture={categoryHandler}
+                  disabled={submitted}
                 />
               </FormControl>
               <FormControl>
@@ -167,31 +245,26 @@ const AddItemForm = () => {
                     multiple
                     pt={1}
                     type="file"
-                    placeholder="Upload profile picture"
-                    onChange={(e) => {
-                      var regexp = /\.([0-9a-z]+)(?:[?#]|$)/i;
-                      var extension = e.target.value.match(regexp);
-
-                      if (
-                        extension[0] === ".jpg" ||
-                        extension[0] === ".JPG" ||
-                        extension[0] === ".png" ||
-                        extension[0] === ".PNG" ||
-                        extension[0] === ".gif" ||
-                        extension[0] === ".GIF"
-                      ) {
-                        // setPic(e.target.files[0]);
-                        // console.log(pro_pic);
-                      } else {
-                        // toast("Only PNG/JPG/GIF file are supported!");
-                        // setPic({});
-                        console.log("F");
-                        // console.log(pro_pic);
-                      }
-                    }}
+                    disabled={submitted}
+                    // value={product.attachments}
+                    placeholder="Upload product pictures"
+                    onChange={(e) =>
+                      setProduct({ ...product, attachments: e.target.files })
+                    }
                   />
                 </InputGroup>
               </FormControl>
+              <Button
+                borderRadius={"5px"}
+                type="submit"
+                variant="solid"
+                colorScheme="teal"
+                width="full"
+                onClick={Submit}
+                disabled={submitted}
+              >
+                {submitted ? <Spinner /> : "Add Product"}
+              </Button>
             </Stack>
           </form>
         </Box>

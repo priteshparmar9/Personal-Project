@@ -22,6 +22,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function BuyerLogin() {
   const [user, setUser] = useState({
@@ -33,7 +35,6 @@ function BuyerLogin() {
   const [profile, setProfile] = useState([]);
 
   const navigate = useNavigate();
-  const toast = useToast();
   function submit(e) {
     e.preventDefault();
     setShowPass(false);
@@ -87,24 +88,7 @@ function BuyerLogin() {
     if (showPassword) setShowPass(false);
     else setShowPass(true);
   }
-  const { loginWithRedirect } = useAuth0();
-  function LoginUsingGoogle(credentialsResponse) {
-    console.log(credentialsResponse);
-    axios
-      .get(
-        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${credentialsResponse.clientId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${credentialsResponse.clientId}`,
-            Accept: "application/json",
-          },
-        }
-      )
-      .then((res) => {
-        setProfile(res.data);
-      })
-      .catch((err) => console.log(err));
-  }
+
   const glogin = useGoogleLogin({
     onSuccess: (codeResponse) => {
       axios
@@ -118,7 +102,32 @@ function BuyerLogin() {
           }
         )
         .then((res) => {
-          console.log(res.data);
+          setSubmit(true);
+          // console.log(res.data);
+          const url =
+            process.env.REACT_APP_BACKEND_BASE_URL + "users/google_login/";
+          axios.post(url, res.data).then((res) => {
+            if (res.data.code == 200) {
+              // console.log(res);
+              window.localStorage.setItem("token", res.data.token);
+              navigate("/");
+            } else {
+              toast.error(
+                "No account found with given Google account! Please signin first!",
+                {
+                  position: "bottom-right",
+                  autoClose: 5000,
+                  hideProgressBar: true,
+                  closeOnClick: false,
+                  pauseOnHover: false,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "light",
+                }
+              );
+            }
+          });
+          setSubmit(false);
         })
         .catch((err) => console.log(err));
     },
@@ -135,6 +144,7 @@ function BuyerLogin() {
             boxShadow="md"
             borderRadius={"md"}
           >
+            <ToastContainer />
             <FormControl>
               <InputGroup>
                 <InputLeftElement

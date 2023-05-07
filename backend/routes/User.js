@@ -77,6 +77,66 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/google_signup", async (req, res) => {
+  const user = new User({
+    username: req.body.name,
+    password: "none",
+    email: req.body.email,
+    google: true,
+    verified: true,
+    pic: req.body.picture,
+  });
+  try {
+    user.save();
+    res.status(200).json({ message: "Successfully signed up!" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/google_login", async (req, res) => {
+  try {
+    const available_users = await User.findOne({
+      $and: [{ email: req.body.email }, { google: true }],
+    });
+    if (available_users) {
+      console.log(available_users);
+      let signindata = SigninData({
+        user: available_users,
+        time: Date(),
+        ip: req.ip,
+      });
+      signindata.save();
+      try {
+        res.json({
+          code: 200,
+          token: jwt.sign(
+            {
+              username: available_users.username,
+              email: available_users.email,
+            },
+            process.env.DC_KEY.toString(),
+            { expiresIn: "48h" }
+          ),
+          status: "Login Successful",
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
+    } else {
+      res.json({
+        code: 201,
+        status: "Invalid Credentials",
+      });
+    }
+  } catch (error) {
+    res.json({
+      code: 500,
+      status: "Error Occured : " + error.message,
+    });
+  }
+});
+
 router.post("/signup", async (req, res) => {
   console.log("Signup Called");
   try {
@@ -334,14 +394,13 @@ router.post("/validate_change_password", async (req, res) => {
 
 router.post("/validateToken", async (req, res) => {
   try {
-    console.log(
-      jwt.verify(
-        req.body.token,
-        process.env.DC_KEY,
-        async function (err, decoded) {
-          if (err) {
-            res.status(205).json({ message: "Invalid Token" });
-          }
+    jwt.verify(
+      req.body.token,
+      process.env.DC_KEY,
+      async function (err, decoded) {
+        if (err) {
+          res.status(205).json({ message: "Invalid Token" });
+        } else {
           const user = await User.find({
             $and: [{ email: decoded.email }],
           });
@@ -351,7 +410,7 @@ router.post("/validateToken", async (req, res) => {
             res.status(205).json({ message: "Invalid Token" });
           }
         }
-      )
+      }
     );
   } catch (error) {
     res.status(205).json({ message: "Invalid Token" });

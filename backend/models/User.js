@@ -21,6 +21,10 @@ const UserSchema = mongoose.Schema(
     pic: {
       type: String,
     },
+    google: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

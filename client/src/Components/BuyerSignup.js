@@ -10,6 +10,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const {
   Stack,
@@ -24,6 +27,7 @@ const {
   VStack,
   FormHelperText,
   Spinner,
+  HStack,
 } = require("@chakra-ui/react");
 
 function BuyerSignup() {
@@ -132,6 +136,43 @@ function BuyerSignup() {
     if (showPassword) setShowPass(false);
     else setShowPass(true);
   }
+  const glogin = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${codeResponse.access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${codeResponse.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          // console.log(res.data);
+          const url =
+            process.env.REACT_APP_BACKEND_BASE_URL + "users/google_signup/";
+          axios.post(url, res.data).then((res) => {
+            if (res.status == 200) {
+              navigate("/login");
+            } else {
+              toast.error("Some error occured! Please try again later!", {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: false,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
+            }
+          });
+        })
+        .catch((err) => console.log(err));
+    },
+    onError: (error) => console.log("Signup Failed:", error),
+  });
   async function otpsubmit(e) {
     e.preventDefault();
     setOTP(false);
@@ -322,8 +363,6 @@ function BuyerSignup() {
                     } else {
                       toast("Only PNG/JPG/GIF file are supported!");
                       setPic({});
-                      console.log("F");
-                      // console.log(pro_pic);
                     }
                   }}
                 />
@@ -366,6 +405,20 @@ function BuyerSignup() {
             >
               {submitted ? otpSent ? "Submit OTP" : <Spinner /> : "Signup"}
             </Button>
+            <HStack>
+              {/* <GoogleLogin
+                onSuccess={LoginUsingGoogle}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              /> */}
+              <Button w="50%" leftIcon={<FcGoogle />} onClick={glogin}>
+                Continue with Google
+              </Button>
+              <Button w="50%" colorScheme="facebook" leftIcon={<FaFacebook />}>
+                Continue with Facebook
+              </Button>
+            </HStack>
           </Stack>
         </form>
       </Box>
