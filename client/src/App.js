@@ -2,7 +2,6 @@ import { Box, Center } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./Styles/App.css";
-import Sidebar from "./Components/NavigationBar";
 import Forgot from "./Pages/Reset_Password";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
@@ -11,7 +10,9 @@ import AddItem from "./Pages/AddItem";
 import SellerPage from "./Pages/SellerPage";
 import ProductPage from "./Pages/ProductPage";
 import Error from "./Pages/Error";
-import Footer from "./Components/Footer";
+import ProductList from "./Pages/ProductList";
+import Layout from "./Components/Layout";
+import Navbar from "./Components/Navbar";
 
 function App() {
   const [loggedin, setLoggedIn] = useState({
@@ -32,7 +33,8 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot_password" element={<ForgotPage />} />
               <Route path="/change_password/:id" element={<Forgot />} />
-              <Route path="/" element={<Sidebar />}>
+              <Route path="/" element={<Layout />}>
+                <Route path="/" exact element={<ProductList />} />
                 <Route path="product/:id" element={<ProductPage />} />
                 <Route path="addItem" element={<AddItem />} />
                 <Route path="seller/:name" element={<SellerPage />} />

@@ -10,11 +10,21 @@ const jwt = require("jsonwebtoken");
 const Seller = require("../models/Seller");
 const Product = require("../models/Product");
 
-router.get("/", UserTokenValidator, async (req, res) => {
-  // console.log("Here");
+router.get("/", async (req, res) => {
   try {
     let products = await Product.find();
-    res.status(200).send(products);
+    let productDTO = [];
+    for (let i = 0; i < products.length; i++) {
+      productDTO.push({
+        id: products[i]._id,
+        title: products[i].title,
+        basePrice: products[i].basePrice,
+        minimumPremium: products[i].minimumPremium,
+        currentPrice: products[i].currentPrice,
+        pic: products[i].attachments[0],
+      });
+    }
+    res.status(200).send(productDTO);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -29,7 +39,6 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
     token = token.replace(/^Bearer\s+/, "");
 
     let user;
-    console.log(token);
     jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
       if (err) {
         res.status(205).json({ message: "Invalid Token" });
@@ -40,6 +49,8 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
       } else {
         let attachments = [];
         // console.log(req.files.attachments);
+        // console.log("Printing");
+        // console.log(req.body.category);
         try {
           let product = new Product({
             seller: user,
@@ -51,14 +62,14 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
             category: req.body.category,
           });
           console.log("Uploading Files");
-          req.files.attachments.map(async (pic) => {
+          await req.files.attachments.map(async (pic) => {
             attachments.push(await uploadPic(user.username, pic));
           });
-          setTimeout(async () => {
-            product.attachments = attachments;
-            await product.save();
-            res.status(200).send("Success");
-          }, 5000);
+          // setTimeout(async () => {
+          product.attachments = attachments;
+          await product.save();
+          res.status(200).send("Success");
+          // }, 5000);
         } catch (err) {
           res.status(500).send(err.message);
         }
@@ -78,4 +89,24 @@ router.get("/getproduct/:id", async (req, res) => {
   }
 });
 
+router.get("/search/:query", async (req, res) => {
+  let query = new RegExp(req.params.query, "i");
+  try {
+    const products = await Product.find({
+      $or: [
+        {
+          title: {
+            $regex: query,
+          },
+        },
+        {
+          category: { $elemMatch: { $regex: query } },
+        },
+      ],
+    });
+    res.status(200).json({ products: products });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
 module.exports = router;

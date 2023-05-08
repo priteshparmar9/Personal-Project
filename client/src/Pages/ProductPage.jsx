@@ -103,115 +103,99 @@ const ProductPage = () => {
         </Center>
       )}
       {!error && !isLoading && (
-        <Box w="80vw" h="100vh" m="5">
-          <HStack spacing="24px" m="5">
-            {
-              <HStack spacing={4}>
-                {product.catagory.map((cat) => (
-                  <Tag size="md" variant="solid" colorScheme="teal">
-                    {cat}
-                  </Tag>
-                ))}
-              </HStack>
-            }
-          </HStack>
-          <Grid templateColumns="repeat(2, 1fr)" columnGap={5} ml="5">
-            <GridItem colSpan={1}>
-              <ProductAttachmentColumn attachments={product.attachments} />
-            </GridItem>
-            <GridItem>
-              <Heading as="h3" size="xl" noOfLines={1}>
-                {product.title}
-              </Heading>
-              <h1>{variable}</h1>
-              <Button
-                onClick={() => {
-                  socket.emit("increment", {
-                    product: product._id,
-                    token: window.localStorage.getItem("token").toString(),
-                    price: variable + 1,
-                    _id: product._id,
-                  });
-                  var audio = document.getElementById("audio");
-                  audio.play();
-                  setVariable(variable + 1);
-                }}
-              >
-                Press ME
-              </Button>
-              <audio
-                id="audio"
-                src="http://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg"
-              ></audio>
-              {/* <Button
-                onClick={() => {
-                  setDisable(true);
-                }}
-                disabled={isDisabled}
-              >
-                Get Live Feed
-              </Button> */}
-            </GridItem>
-          </Grid>
-          <Divider mt={5} />
-          <Heading as="h3" size="md" noOfLines={1} m={5}>
-            About this item
-          </Heading>
-          <Text m={5}>{product.description}</Text>
-          <Divider mt={5} />
-          <Heading as="h3" size="md" noOfLines={1} m={5}>
-            Reviews
-          </Heading>
-          <Text m="5">Review 1</Text>
-          <Text m="5">Review 2</Text>
-          <Divider mt={5} />
-          <Heading as="h3" size="md" noOfLines={1} m={5}>
-            About Seller
-          </Heading>
-          <Box m="5">
-            <Grid templateColumns="repeat(10,1fr)">
-              <GridItem colSpan={3}>
-                <Image
-                  borderRadius="full"
-                  boxSize="300px"
-                  src={seller.pic}
-                  alt="Dan Abramov"
-                />
+        <Center>
+          <Box w="90vw" h="100vh" m="5">
+            <HStack spacing="24px" m="5">
+              {
+                <HStack spacing={4}>
+                  {product.catagory.map((cat) => (
+                    <Tag size="md" variant="solid" colorScheme="teal">
+                      {cat}
+                    </Tag>
+                  ))}
+                </HStack>
+              }
+            </HStack>
+            <Grid templateColumns="repeat(2, 1fr)" columnGap={5} ml="5">
+              <GridItem colSpan={1}>
+                <ProductAttachmentColumn attachments={product.attachments} />
               </GridItem>
-              <GridItem colSpan={7}>
-                <Stack direction="row" h="100px" p={4}>
-                  <Divider orientation="vertical" h="300px" />
-                  <Box>
-                    <Heading as="h3" size="xl" noOfLines={1} m={5}>
-                      {seller.username}
-                    </Heading>
-                    <TableContainer>
-                      <Table variant="simple">
-                        <Tbody>
-                          <Tr>
-                            <Th>Email</Th>
-                            <Th>{seller.email}</Th>
-                          </Tr>
-                          <Tr>
-                            <Td>Contact Number</Td>
-                            <Td>{seller.number}</Td>
-                          </Tr>
-                          <Tr>
-                            <Td>Address</Td>
-                            <Td>{seller.address} </Td>
-                          </Tr>
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
-                    <Link to={`../seller/${seller.username}`}>
-                      <Button m="5">Visit Seller</Button>
-                    </Link>
-                  </Box>
-                </Stack>
+              <GridItem>
+                <Heading as="h3" size="xl" noOfLines={1}>
+                  {product.title}
+                </Heading>
+                <h1>{variable}</h1>
+                <Button
+                  onClick={() => {
+                    socket.emit("increment", {
+                      product: product._id,
+                      token: window.localStorage.getItem("token").toString(),
+                      price: variable + 1,
+                      _id: product._id,
+                    });
+                    var audio = document.getElementById("audio");
+                    audio.play();
+                    setVariable(variable + 1);
+                  }}
+                >
+                  Press ME
+                </Button>
               </GridItem>
             </Grid>
+            <Divider mt={5} />
+            <Heading as="h3" size="md" noOfLines={1} m={5}>
+              About this item
+            </Heading>
+            <Text m={5}>{product.description}</Text>
+            <Divider mt={5} />
+            <Heading as="h3" size="md" noOfLines={1} m={5}>
+              Reviews
+            </Heading>
+            <Text m="5">Review 1</Text>
+            <Text m="5">Review 2</Text>
+            <Divider mt={5} />
+            <Heading as="h3" size="md" noOfLines={1} m={5}>
+              About Seller
+            </Heading>
+            <Flex m="5" w="100%" justifyContent="space-evenly">
+              <Image
+                borderRadius="full"
+                boxSize="300px"
+                src={seller.pic}
+                alt="Dan Abramov"
+              />
+              <Divider orientation="vertical" h="300px" />
+              <Stack direction="row" h="100px" p={4}>
+                <Box>
+                  <Heading as="h3" size="xl" noOfLines={1} m={5}>
+                    {seller.username}
+                  </Heading>
+                  <TableContainer>
+                    <Table variant="simple">
+                      <Tbody>
+                        <Tr>
+                          <Th>Email</Th>
+                          <Th>{seller.email}</Th>
+                        </Tr>
+                        <Tr>
+                          <Td>Contact Number</Td>
+                          <Td>{seller.number}</Td>
+                        </Tr>
+                        <Tr>
+                          <Td>Address</Td>
+                          <Td>{seller.address} </Td>
+                        </Tr>
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                  <Link to={`../seller/${seller.username}`}>
+                    <Button m="5">Visit Seller</Button>
+                  </Link>
+                </Box>
+              </Stack>
+            </Flex>
           </Box>
-        </Box>
+        </Center>
       )}
     </Flex>
   );

@@ -70,6 +70,7 @@ const AddItemForm = () => {
     }
     formData.append("endTime", product.endTime);
     formData.append("category", product.category);
+    console.log(product.category);
     formData.append("description", product.description);
     formData.append("minimumPremium", product.minimumPremium);
     formData.append("basePrice", product.basePrice);

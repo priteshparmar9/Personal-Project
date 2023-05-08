@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Sidebar from "../Components/NavigationBar";
+import Sidebar from "../Components/Layout";
 
 function SellerPage() {
   const { name } = useParams();
