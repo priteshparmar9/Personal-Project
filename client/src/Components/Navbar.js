@@ -10,13 +10,15 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
 import { FiSearch } from "react-icons/fi";
 // import logo from "../static/images/logo.png";
 
 const Navbar = () => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
   return (
     <Flex
       mr="4px"
@@ -58,8 +60,19 @@ const Navbar = () => {
             variant="flushed"
             borderRadius="lg"
             pl="5px"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
           />
-          <InputRightAddon cursor="pointer" onClick={() => {}}>
+          <InputRightAddon
+            cursor="pointer"
+            onClick={() => {
+              if (query) {
+                navigate(`/search/${query}`);
+              }
+            }}
+          >
             <FiSearch />
           </InputRightAddon>
         </InputGroup>

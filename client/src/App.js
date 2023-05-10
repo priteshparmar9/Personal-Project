@@ -13,6 +13,7 @@ import Error from "./Pages/Error";
 import ProductList from "./Pages/ProductList";
 import Layout from "./Components/Layout";
 import Navbar from "./Components/Navbar";
+import SearchList from "./Pages/SearchList";
 
 function App() {
   const [loggedin, setLoggedIn] = useState({
@@ -39,6 +40,7 @@ function App() {
                 <Route path="addItem" element={<AddItem />} />
                 <Route path="seller/:name" element={<SellerPage />} />
                 <Route path="login" element={<Login />} />
+                <Route path="search/:query" element={<SearchList />} />
                 <Route path="*" element={<Error />} />
               </Route>
             </Routes>

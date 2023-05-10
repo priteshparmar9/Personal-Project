@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const crypto = require("crypto-js");
-const uploadPic = require("../services/Dropbox");
+const { uploadPic } = require("../services/Dropbox");
 const {
   UserTokenValidator,
   SellerTokenValidator,
@@ -31,7 +31,6 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/add_product", SellerTokenValidator, async (req, res) => {
-  console.log(req.files);
   // res.send("Nothing");
   console.log("Token Verified");
   try {
@@ -50,27 +49,34 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
         let attachments = [];
         // console.log(req.files.attachments);
         // console.log("Printing");
-        // console.log(req.body.category);
+        console.log(req.body.category);
         try {
           let product = new Product({
             seller: user,
-            endTime: Date(),
+            endTime: new Date(req.body.endTime),
             title: req.body.title,
             basePrice: req.body.basePrice,
             minimumPremium: req.body.minimumPremium,
             description: req.body.description,
-            category: req.body.category,
           });
-          console.log("Uploading Files");
-          await req.files.attachments.map(async (pic) => {
-            attachments.push(await uploadPic(user.username, pic));
-          });
-          // setTimeout(async () => {
-          product.attachments = attachments;
-          await product.save();
-          res.status(200).send("Success");
-          // }, 5000);
+
+          for (let i = 0; i <= req.files.attachments.length; i++) {
+            if (i != req.files.attachments.length)
+              attachments.push(
+                await uploadPic(user.username, req.files.attachments[i])
+              );
+            else {
+              console.log("Files uploaded");
+              product.attachments = attachments;
+              product.catagory = req.body.category
+                ? req.body.category
+                : "product";
+              await product.save();
+              res.status(200).send("Success");
+            }
+          }
         } catch (err) {
+          console.log(err.message);
           res.status(500).send(err.message);
         }
       }
@@ -83,6 +89,7 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
 router.get("/getproduct/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
+    // console.log(product);
     res.status(200).json({ product: product });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -100,13 +107,25 @@ router.get("/search/:query", async (req, res) => {
           },
         },
         {
-          category: { $elemMatch: { $regex: query } },
+          catagory: { $regex: query },
         },
       ],
     });
-    res.status(200).json({ products: products });
+    let productDTO = [];
+    for (let i = 0; i < products.length; i++) {
+      productDTO.push({
+        id: products[i]._id,
+        title: products[i].title,
+        basePrice: products[i].basePrice,
+        minimumPremium: products[i].minimumPremium,
+        currentPrice: products[i].currentPrice,
+        pic: products[i].attachments[0],
+      });
+    }
+    res.status(200).json({ products: productDTO });
   } catch (err) {
     res.status(500).send(err.message);
   }
+  // console.log(req.body.category);
 });
 module.exports = router;

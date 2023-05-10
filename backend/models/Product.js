@@ -32,7 +32,9 @@ const ProductSchema = mongoose.Schema({
     required: true,
   },
   catagory: {
-    type: Array,
+    type: String,
+    required: true,
+    default: "Product",
   },
   attachments: {
     type: Array,

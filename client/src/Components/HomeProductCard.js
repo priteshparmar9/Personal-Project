@@ -21,6 +21,7 @@ const HomeProductCard = (props) => {
   return (
     <Card
       maxW="sm"
+      maxH="md"
       mt={"1rem"}
       ml={"1rem"}
       _hover={{
@@ -75,17 +76,14 @@ const HomeProductCard = (props) => {
               </Tbody>
             </Table>
           </TableContainer>
-          <Text fontSize="xl">
-            Place bid at :
-            <Text color="blue">
-              Rs.
-              {product.currentPrice
-                ? ` ${
-                    (product.currentPrice * (100 + product.minimumPremium)) /
-                    100
-                  } `
-                : ` ${product.basePrice}`}
-            </Text>
+          <Text fontSize="xl">Place bid at :</Text>
+          <Text color="blue">
+            Rs.
+            {product.currentPrice
+              ? ` ${
+                  (product.currentPrice * (100 + product.minimumPremium)) / 100
+                } `
+              : ` ${product.basePrice}`}
           </Text>
         </Stack>
       </CardBody>

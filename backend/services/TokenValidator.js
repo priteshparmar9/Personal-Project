@@ -30,6 +30,31 @@ const UserTokenValidator = (req, res, next) => {
   }
 };
 
+const GetUserName = (req) => {
+  try {
+    let token = req.headers["authorization"];
+    token = token.replace(/^Bearer\s+/, "");
+
+    jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
+      if (err) {
+        return { message: "Invalid Token" };
+      }
+      let user;
+      if (decoded.email)
+        user = await User.find({
+          $and: [{ email: decoded.email }],
+        });
+      if (user) {
+        return { username: user.username };
+      } else {
+        return { message: "Invalid Token" };
+      }
+    });
+  } catch (error) {
+    return { message: "Invalid Token" };
+  }
+};
+
 const SellerTokenValidator = (req, res, next) => {
   console.log("Validation Seller token");
   try {
@@ -53,4 +78,4 @@ const SellerTokenValidator = (req, res, next) => {
   }
 };
 
-module.exports = { UserTokenValidator, SellerTokenValidator };
+module.exports = { UserTokenValidator, SellerTokenValidator, GetUserName };

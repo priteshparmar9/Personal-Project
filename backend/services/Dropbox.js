@@ -1,6 +1,6 @@
 const https = require("https");
 const axios = require("axios");
-module.exports = async function uploadPic(username, pic) {
+async function uploadPic(username, pic) {
   try {
     let up_path = `/PersonalProjectEA/ProductImageVideos/${username}_${pic.name}`;
 
@@ -21,14 +21,14 @@ module.exports = async function uploadPic(username, pic) {
         },
       },
       (res) => {
-        console.log("statusCode: ", res.statusCode);
+        // console.log("statusCode: ", res.statusCode);
       }
     );
 
     await uploadRequest.write(pic.data);
     await uploadRequest.end();
 
-    console.log("Uploaded to dropbox");
+    // console.log("Uploaded to dropbox");
 
     // Finding url of the uploaded image
     let pic_addr = "";
@@ -64,4 +64,6 @@ module.exports = async function uploadPic(username, pic) {
   } catch (err) {
     return err.message;
   }
-};
+}
+
+module.exports = { uploadPic };

@@ -1,3 +1,6 @@
+const { GetUserName } = require("./TokenValidator");
+const Product = require("../models/Product");
+
 const SocketService = (server) => {
   const io = require("socket.io")(server, {
     cors: {
@@ -18,9 +21,17 @@ const SocketService = (server) => {
       console.log(reason);
     });
 
-    socket.on("increment", (res) => {
-      console.log(res);
-      socket.to(res._id).emit("inc_done", { price: res.price });
+    socket.on("bid_request", async (req) => {
+      console.log(req);
+      try {
+        const user = GetUserName(req.token);
+        let product = await Product.findById(req.product);
+        product.currentPrice = req.price;
+        await product.save();
+        socket.to(req._id).emit("bid_acceped", { price: req.price });
+      } catch (err) {
+        console.log(err);
+      }
     });
   });
   io.listen(process.env.SOCKET_PORT);

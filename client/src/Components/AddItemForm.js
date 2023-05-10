@@ -41,27 +41,24 @@ const AddItemForm = () => {
 
   function categoryHandler(e) {
     setCatInput(e.target.value);
+    // console.log(catInput);
     let arr = catInput.split("#");
     setCategory(arr);
-    arr = [];
-    for (let i = 0; i < categories.length; i++) {
-      if (categories[i] != "" && categories[i] != " ") {
-        arr.push(categories[i]);
-      }
-    }
-    setProduct({ ...product, category: categories });
+    // console.log(arr);
+    setProduct({ ...product, category: arr });
+    // console.log(product);
   }
 
   const handler = (e) => {
     // console.log(e);
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
-    // console.log(product);
   };
 
   const Submit = (e) => {
     e.preventDefault();
     setSubmit(true);
+    console.log(product);
     const url = process.env.REACT_APP_BACKEND_BASE_URL + "products/add_product";
     const formData = new FormData();
     formData.append("title", product.title);
@@ -70,7 +67,6 @@ const AddItemForm = () => {
     }
     formData.append("endTime", product.endTime);
     formData.append("category", product.category);
-    console.log(product.category);
     formData.append("description", product.description);
     formData.append("minimumPremium", product.minimumPremium);
     formData.append("basePrice", product.basePrice);

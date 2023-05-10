@@ -9,6 +9,9 @@ import {
   Heading,
   HStack,
   Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Spinner,
   Stack,
   Table,
@@ -25,16 +28,13 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-// import Footer from "../Components/Footer";
 import ProductAttachmentColumn from "../Components/ProductAttachmentColumn";
 import Error from "./Error";
-// import { FaWindowRestore } from "react-icons/fa";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const ProductPage = () => {
   const { id } = useParams();
-
   const [product, setProduct] = useState({
     _id: "",
     seller: "",
@@ -44,29 +44,46 @@ const ProductPage = () => {
     currentPrice: 0,
     minimumPremium: 0,
     description: "",
-    category: Array,
+    catagory: "",
     attachments: Array,
     __v: 0,
   });
   const [seller, setSeller] = useState({});
   const toast = useToast();
   const [error, setError] = useState(false);
-  const [isDisabled, setDisable] = useState(false);
   const [isLoading, setLoading] = useState(true);
-  const [variable, setVariable] = useState(0);
+  const [catagory, setCatagory] = useState([]);
+  const [valid, setValid] = useState(true);
+  const [value, setVal] = useState(0);
+  const [status, setStatus] = useState("");
   useEffect(() => {
     const fun = async () => {
       try {
         const URL =
           process.env.REACT_APP_BACKEND_BASE_URL + "products/getproduct/" + id;
-        await axios.get(URL).then(async (res) => {
+        axios.get(URL).then((res) => {
           setProduct(res.data.product);
-          // socket.emit("join", res.data.product._id);
+
+          setCatagory(res.data.product.catagory.split(","));
+          console.log(catagory);
+          setVal(
+            res.data.product.currentPrice
+              ? res.data.product.currentPrice *
+                  (1 + res.data.product.minimumPremium / 100)
+              : res.data.product.basePrice
+          );
+          var date = new Date(res.data.product.endTime);
+          if (new Date().getTime() > date.getTime()) {
+            setStatus("Expired");
+          } else {
+            setStatus("Active");
+          }
+          // }, 100);
           const SellerUrl =
             process.env.REACT_APP_BACKEND_BASE_URL +
             "sellers/getseller/" +
             res.data.product.seller;
-          await axios
+          axios
             .get(SellerUrl)
             .then((res) => setSeller(res.data.seller), setLoading(false));
         });
@@ -80,19 +97,23 @@ const ProductPage = () => {
       }
     };
     fun();
-  });
+  }, []);
+
   useEffect(() => {
     socket.emit("join", id);
-    // socket.on("connect", () => console.log(socket));
-    socket.on("inc_done", (res) => {
-      setVariable(res.price);
+    socket.on("bid_acceped", (res) => {
+      // setVariable(res.price);
+      setProduct({ ...product, currentPrice: res.price });
+      setVal(product.currentPrice * (1 + product.minimumPremium / 100));
+      console.log(res);
     });
   }, [socket]);
+
   return (
-    <Flex h="100vh">
+    <Flex h="100vh" bgColor="rgb(240,240,240)">
       {error && <Error />}
       {isLoading && (
-        <Center>
+        <Center w="100%" bgColor="rgb(240,240,240)">
           <Spinner
             thickness="5px"
             speed="0.5s"
@@ -103,16 +124,22 @@ const ProductPage = () => {
         </Center>
       )}
       {!error && !isLoading && (
-        <Center>
+        <Center bgColor="rgb(240,240,240)" minW="100%">
           <Box w="90vw" h="100vh" m="5">
             <HStack spacing="24px" m="5">
               {
                 <HStack spacing={4}>
-                  {product.catagory.map((cat) => (
-                    <Tag size="md" variant="solid" colorScheme="teal">
-                      {cat}
-                    </Tag>
-                  ))}
+                  {catagory.length &&
+                    catagory.map((cat, id) => (
+                      <Tag
+                        size="md"
+                        key={id}
+                        variant="solid"
+                        colorScheme="teal"
+                      >
+                        {cat}
+                      </Tag>
+                    ))}
                 </HStack>
               }
             </HStack>
@@ -120,28 +147,199 @@ const ProductPage = () => {
               <GridItem colSpan={1}>
                 <ProductAttachmentColumn attachments={product.attachments} />
               </GridItem>
-              <GridItem>
+              <GridItem
+                m="5px"
+                display="flex"
+                flexDir="column"
+                justifyContent="space-between"
+              >
                 <Heading as="h3" size="xl" noOfLines={1}>
                   {product.title}
                 </Heading>
-                <h1>{variable}</h1>
-                <Button
-                  onClick={() => {
-                    socket.emit("increment", {
-                      product: product._id,
-                      token: window.localStorage.getItem("token").toString(),
-                      price: variable + 1,
-                      _id: product._id,
-                    });
-                    var audio = document.getElementById("audio");
-                    audio.play();
-                    setVariable(variable + 1);
-                  }}
-                >
-                  Press ME
-                </Button>
+                {status === "Active" && (
+                  <Tag size="md" variant="solid" bg="rgb(60,72,107)" w="5em">
+                    {status}
+                  </Tag>
+                )}
+                {status === "Expired" && (
+                  <Tag size="md" variant="solid" bg="rgb(70,70,70)" w="5em">
+                    {status}
+                  </Tag>
+                )}
+                <TableContainer>
+                  <Table variant="simple">
+                    <Tbody>
+                      <Tr>
+                        <Td>
+                          <Text fontSize="xl">Place Bid:</Text>
+                        </Td>
+                        <Td isNumeric>
+                          <Text fontSize="xl">
+                            Rs.
+                            {product.currentPrice
+                              ? ` ${
+                                  product.currentPrice *
+                                  (1 + product.minimumPremium / 100)
+                                }`
+                              : ` ${product.basePrice}`}
+                          </Text>
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td>
+                          <Text fontSize="xl">Base Price:</Text>
+                        </Td>
+                        <Td isNumeric fontSize="xl">
+                          Rs. {product.basePrice}
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td>
+                          <Text fontSize="xl">Minimum Premium:</Text>
+                        </Td>
+                        <Td isNumeric fontSize="xl">
+                          {product.minimumPremium} %
+                        </Td>
+                      </Tr>
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+
+                <HStack>
+                  <InputGroup w="50%">
+                    <InputLeftElement
+                      pointerEvents="none"
+                      color="gray.300"
+                      fontSize="1.2em"
+                      children="Rs. "
+                    />
+                    <Input
+                      placeholder="Enter amount for custom bid"
+                      type="number"
+                      isInvalid={!valid}
+                      value={value}
+                      onChange={(e) => {
+                        if (
+                          e.target.value <
+                          (product.currentPrice
+                            ? product.currentPrice *
+                              (1 + product.minimumPremium / 100)
+                            : product.basePrice)
+                        ) {
+                          setValid(false);
+                        } else {
+                          setValid(true);
+                        }
+                        setVal(e.target.value);
+                      }}
+                    />
+                  </InputGroup>
+                  <Button
+                    _hover={{ backgroundColor: "rgb(40,90,80)" }}
+                    w="50%"
+                    bg="rgb(60,72,107)"
+                    color="rgb(240,240,240)"
+                    isDisabled={!valid}
+                    onClick={() => {
+                      socket.emit("bid_request", {
+                        product: product._id,
+                        token: window.localStorage.getItem("token").toString(),
+                        price: value,
+                        _id: product._id,
+                      });
+                    }}
+                  >
+                    Place Bid
+                  </Button>
+                </HStack>
               </GridItem>
             </Grid>
+            <Divider mt={5} />
+            <Heading m="15px">Placed Bids</Heading>
+            <TableContainer w="100%" maxH="50vmin" overflowY="auto" minW="100%">
+              <Table variant="simple" size="md" w="100%">
+                <Tr bg="green.200">
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+                <Tr>
+                  <Td>Pritesh Parmar</Td>
+                  <Td>{Date()}</Td>
+                  <Td isNumeric>Rs. 18999</Td>
+                </Tr>
+              </Table>
+            </TableContainer>
             <Divider mt={5} />
             <Heading as="h3" size="md" noOfLines={1} m={5}>
               About this item
@@ -157,7 +355,12 @@ const ProductPage = () => {
             <Heading as="h3" size="md" noOfLines={1} m={5}>
               About Seller
             </Heading>
-            <Flex m="5" w="100%" justifyContent="space-evenly">
+            <Flex
+              m="5"
+              w="100%"
+              justifyContent="space-evenly"
+              bgColor="rgb(240,240,240)"
+            >
               <Image
                 borderRadius="full"
                 boxSize="300px"
