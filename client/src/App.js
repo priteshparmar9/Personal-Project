@@ -12,14 +12,20 @@ import ProductPage from "./Pages/ProductPage";
 import Error from "./Pages/Error";
 import ProductList from "./Pages/ProductList";
 import Layout from "./Components/Layout";
-import Navbar from "./Components/Navbar";
 import SearchList from "./Pages/SearchList";
+import CurrentWinning from "./Pages/CurrentWinning";
+import Expired from "./Pages/Expired";
 
 function App() {
   const [loggedin, setLoggedIn] = useState({
     loggedin: false,
     role: "none",
   });
+  useState(() => {
+    if (window.localStorage.getItem("token") !== null) {
+      setLoggedIn({ ...loggedin, loggedin: true });
+    }
+  }, [loggedin]);
   return (
     <Box className="App" bgColor="InfoBackground">
       <div style={{ position: "relative" }}>
@@ -28,18 +34,24 @@ function App() {
             <Routes>
               <Route
                 path="/login"
-                index
                 element={<Login setLoggedIn={setLoggedIn} />}
               />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot_password" element={<ForgotPage />} />
               <Route path="/change_password/:id" element={<Forgot />} />
-              <Route path="/" element={<Layout />}>
+              <Route
+                path="/"
+                element={
+                  <Layout loggedin={loggedin} setLoggedIn={setLoggedIn} />
+                }
+              >
                 <Route path="/" exact element={<ProductList />} />
                 <Route path="product/:id" element={<ProductPage />} />
                 <Route path="addItem" element={<AddItem />} />
                 <Route path="seller/:name" element={<SellerPage />} />
                 <Route path="login" element={<Login />} />
+                <Route path="currentWinnings" element={<CurrentWinning />} />
+                <Route path="expired" element={<Expired />} />
                 <Route path="search/:query" element={<SearchList />} />
                 <Route path="*" element={<Error />} />
               </Route>

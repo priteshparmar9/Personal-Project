@@ -7,6 +7,11 @@ const ProductSchema = mongoose.Schema({
     ref: "Seller",
     required: false,
   },
+  currentWinner: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: false,
+  },
   endTime: {
     type: Date,
     required: true,
@@ -39,6 +44,10 @@ const ProductSchema = mongoose.Schema({
   attachments: {
     type: Array,
     required: true,
+  },
+  status: {
+    type: String,
+    default: "Active",
   },
 });
 module.exports = mongoose.model("Products", ProductSchema);

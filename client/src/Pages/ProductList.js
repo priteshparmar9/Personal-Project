@@ -7,16 +7,17 @@ import { Link } from "react-router-dom";
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   useEffect(() => {
+    document.title = "EAuction | A place to buy everything at lowest rate!";
     const url = process.env.REACT_APP_BACKEND_BASE_URL + "products/";
     axios.get(url).then((res) => {
       setProducts(res.data);
     });
   }, []);
   return (
-    <Center minH={"100vh"}>
+    <Center minH={"100vh"} maxW="100%" overflowX="hidden">
       {products.length !== 0 ? (
         <SimpleGrid
-          spacing={4}
+          spacing={2}
           templateColumns="repeat(auto-fit, minmax(300px, 1fr))"
           minW="65vw"
         >

@@ -8,6 +8,7 @@ const SearchList = () => {
   const { query } = useParams();
   const [products, setProducts] = useState([]);
   useEffect(() => {
+    document.title = "Search : " + query;
     const url =
       process.env.REACT_APP_BACKEND_BASE_URL + "products/search/" + query;
     axios.get(url).then((res) => {

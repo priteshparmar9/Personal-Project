@@ -9,12 +9,15 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import BuyerSignup from "../Components/BuyerSignup";
 import SellerSignup from "../Components/SellerSignup";
 
 function Signup() {
+  useEffect(() => {
+    document.title = "Signup";
+  }, []);
   return (
     <Flex
       flexDirection="column"

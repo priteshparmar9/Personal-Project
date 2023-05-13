@@ -26,7 +26,6 @@ const {
   Spinner,
   Textarea,
   HStack,
-  useToast,
 } = require("@chakra-ui/react");
 
 function SellerSignup() {

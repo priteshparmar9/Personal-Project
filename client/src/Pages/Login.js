@@ -19,6 +19,7 @@ function Login() {
   const navigate = useNavigate();
   useEffect(() => {
     let token = window.localStorage.getItem("token");
+    document.title = "Login";
     if (token) {
       let url = process.env.REACT_APP_BACKEND_BASE_URL + "users/validateToken";
       axios.post(url, { token: token }).then((res) => {

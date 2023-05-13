@@ -25,7 +25,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function BuyerLogin() {
+function BuyerLogin(props) {
   const [user, setUser] = useState({
     username: "",
     password: "",
@@ -110,7 +110,7 @@ function BuyerLogin() {
             if (res.data.code == 200) {
               // console.log(res);
               window.localStorage.setItem("token", res.data.token);
-              navigate("/");
+              window.location.reload();
             } else {
               toast.error(
                 "No account found with given Google account! Please signin first!",
@@ -133,6 +133,7 @@ function BuyerLogin() {
     },
     onError: (error) => console.log("Login Failed:", error),
   });
+
   return (
     <Center>
       <Box minW={{ base: "90%", md: "468px" }}>

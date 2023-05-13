@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardBody,
   Center,
@@ -8,6 +9,7 @@ import {
   Stack,
   Table,
   TableContainer,
+  Tag,
   Tbody,
   Td,
   Text,
@@ -21,7 +23,6 @@ const HomeProductCard = (props) => {
   return (
     <Card
       maxW="sm"
-      maxH="md"
       mt={"1rem"}
       ml={"1rem"}
       _hover={{
@@ -32,60 +33,72 @@ const HomeProductCard = (props) => {
       transition={"0.25s"}
     >
       {/* <Skeleton height="20vmin" color="white" fadeDuration={1} /> */}
-      <CardBody>
-        <Center>
-          <Skeleton
-            height={imageLoaded ? "0px" : "20vmin"}
-            width={imageLoaded ? "0px" : "200px"}
-            color="white"
-            fadeDuration={1}
-          />
+      <CardBody pt={0} pl="0">
+        {!product.status || product.status === "Active" ? (
+          <Tag top={0} bg="green.200" borderRadius={0}>
+            Active
+          </Tag>
+        ) : (
+          <Tag top={0} bg="blackAlpha.600" borderRadius={0}>
+            Expired
+          </Tag>
+        )}
+        <Box p="5">
+          <Center>
+            <Skeleton
+              height={imageLoaded ? "0px" : "20vmin"}
+              width={imageLoaded ? "0px" : "200px"}
+              color="white"
+              fadeDuration={1}
+            />
 
-          <Image
-            src={product.pic}
-            borderRadius="lg"
-            h={"20vmin"}
-            onLoad={() => {
-              setImgLoad(true);
-            }}
-            hidden={!imageLoaded}
-          />
-        </Center>
-        <Stack mt="6" spacing="3">
-          <Heading size="md">{product.title}</Heading>
+            <Image
+              src={product.pic}
+              borderRadius="lg"
+              h={"20vmin"}
+              onLoad={() => {
+                setImgLoad(true);
+              }}
+              hidden={!imageLoaded}
+            />
+          </Center>
+          <Stack mt="6" spacing="3">
+            <Heading size="md">{product.title}</Heading>
 
-          <TableContainer overflowX={"hidden"}>
-            <Table size="sm">
-              <Tbody>
-                <Tr>
-                  <Td justifyContent={"left"}>Base Price</Td>
-                  <Td isNumeric>Rs. {product.basePrice}</Td>
-                </Tr>
-                <Tr>
-                  <Td justifyContent={"left"}>Current Price</Td>
-                  <Td isNumeric>
-                    {product.currentPrice
-                      ? `Rs. ${product.currentPrice}`
-                      : `No bids`}
-                  </Td>
-                </Tr>
-                <Tr>
-                  <Td justifyContent={"left"}>Minimum Premium</Td>
-                  <Td isNumeric>{product.minimumPremium}</Td>
-                </Tr>
-              </Tbody>
-            </Table>
-          </TableContainer>
-          <Text fontSize="xl">Place bid at :</Text>
-          <Text color="blue">
-            Rs.
-            {product.currentPrice
-              ? ` ${
-                  (product.currentPrice * (100 + product.minimumPremium)) / 100
-                } `
-              : ` ${product.basePrice}`}
-          </Text>
-        </Stack>
+            <TableContainer overflowX={"hidden"}>
+              <Table size="sm">
+                <Tbody>
+                  <Tr>
+                    <Td justifyContent={"left"}>Base Price</Td>
+                    <Td isNumeric>Rs. {product.basePrice}</Td>
+                  </Tr>
+                  <Tr>
+                    <Td justifyContent={"left"}>Current Price</Td>
+                    <Td isNumeric>
+                      {product.currentPrice
+                        ? `Rs. ${product.currentPrice}`
+                        : `No bids`}
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td justifyContent={"left"}>Minimum Premium</Td>
+                    <Td isNumeric>{product.minimumPremium}</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+            </TableContainer>
+            <Text fontSize="xl">Place bid at :</Text>
+            <Text color="blue">
+              Rs.
+              {product.currentPrice
+                ? ` ${
+                    (product.currentPrice * (100 + product.minimumPremium)) /
+                    100
+                  } `
+                : ` ${product.basePrice}`}
+            </Text>
+          </Stack>
+        </Box>
       </CardBody>
     </Card>
   );

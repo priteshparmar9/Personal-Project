@@ -22,7 +22,6 @@ import {
   Text,
   Th,
   Tr,
-  useToast,
 } from "@chakra-ui/react";
 import { io } from "socket.io-client";
 import axios from "axios";
@@ -30,6 +29,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProductAttachmentColumn from "../Components/ProductAttachmentColumn";
 import Error from "./Error";
+import { ToastContainer, toast } from "react-toastify";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -38,7 +38,7 @@ const ProductPage = () => {
   const [product, setProduct] = useState({
     _id: "",
     seller: "",
-    endTime: "",
+    endTime: Object,
     title: "",
     basePrice: 0,
     currentPrice: 0,
@@ -49,13 +49,19 @@ const ProductPage = () => {
     __v: 0,
   });
   const [seller, setSeller] = useState({});
-  const toast = useToast();
   const [error, setError] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [catagory, setCatagory] = useState([]);
   const [valid, setValid] = useState(true);
   const [value, setVal] = useState(0);
   const [status, setStatus] = useState("");
+  const [bids, setBids] = useState([]);
+  const [hours, setHours] = useState(0);
+  const [days, setDays] = useState(0);
+  const [mins, setMins] = useState(0);
+  const [secs, setSecs] = useState(0);
+  const [productEndTime, setProductEndtime] = useState(Date());
+
   useEffect(() => {
     const fun = async () => {
       try {
@@ -63,9 +69,10 @@ const ProductPage = () => {
           process.env.REACT_APP_BACKEND_BASE_URL + "products/getproduct/" + id;
         axios.get(URL).then((res) => {
           setProduct(res.data.product);
-
+          document.title = res.data.product.title + " | EAuction";
+          setProductEndtime(new Date(res.data.product.endTime));
+          setBids(res.data.bids.reverse());
           setCatagory(res.data.product.catagory.split(","));
-          console.log(catagory);
           setVal(
             res.data.product.currentPrice
               ? res.data.product.currentPrice *
@@ -99,21 +106,42 @@ const ProductPage = () => {
     fun();
   }, []);
 
+  let tm = setTimeout(() => {
+    let currentDate = new Date();
+    if (product.endTime) {
+      var distance = productEndTime - currentDate;
+      setSecs(Math.floor((distance % (1000 * 60)) / 1000));
+      setMins(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
+      setHours(
+        Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      );
+      setDays(Math.floor(distance / (1000 * 60 * 60 * 24)));
+      if (distance < 0) {
+        setStatus("Expired");
+        setSecs(0);
+        setMins(0);
+        setHours(0);
+        setDays(0);
+      }
+    }
+  }, 1000);
   useEffect(() => {
     socket.emit("join", id);
     socket.on("bid_acceped", (res) => {
-      // setVariable(res.price);
-      setProduct({ ...product, currentPrice: res.price });
-      setVal(product.currentPrice * (1 + product.minimumPremium / 100));
+      toast("New bid accepted!");
       console.log(res);
+      setProduct(res.bid.product);
+      let temp = bids;
+      temp.unshift(res.bid);
+      setBids(temp);
     });
   }, [socket]);
 
   return (
-    <Flex h="100vh" bgColor="rgb(240,240,240)">
+    <Flex bgColor="rgb(240,240,240)" minH="100vh" flexDir="column">
       {error && <Error />}
       {isLoading && (
-        <Center w="100%" bgColor="rgb(240,240,240)">
+        <Center w="100%" minH="100vh" bgColor="rgb(240,240,240)">
           <Spinner
             thickness="5px"
             speed="0.5s"
@@ -124,28 +152,28 @@ const ProductPage = () => {
         </Center>
       )}
       {!error && !isLoading && (
-        <Center bgColor="rgb(240,240,240)" minW="100%">
+        <Center>
+          <ToastContainer />
           <Box w="90vw" h="100vh" m="5">
             <HStack spacing="24px" m="5">
               {
                 <HStack spacing={4}>
                   {catagory.length &&
                     catagory.map((cat, id) => (
-                      <Tag
-                        size="md"
-                        key={id}
-                        variant="solid"
-                        colorScheme="teal"
-                      >
-                        {cat}
-                      </Tag>
+                      <Link key={id} to={`/search/${cat}`}>
+                        <Tag size="md" variant="solid" colorScheme="teal">
+                          {cat}
+                        </Tag>
+                      </Link>
                     ))}
                 </HStack>
               }
             </HStack>
             <Grid templateColumns="repeat(2, 1fr)" columnGap={5} ml="5">
               <GridItem colSpan={1}>
-                <ProductAttachmentColumn attachments={product.attachments} />
+                {product.attachments && (
+                  <ProductAttachmentColumn attachments={product.attachments} />
+                )}
               </GridItem>
               <GridItem
                 m="5px"
@@ -165,6 +193,17 @@ const ProductPage = () => {
                   <Tag size="md" variant="solid" bg="rgb(70,70,70)" w="5em">
                     {status}
                   </Tag>
+                )}
+                {productEndTime && status !== "Expired" && (
+                  <HStack>
+                    <Text fontSize="xl">{days.toString()}</Text>
+                    <Text>:</Text>
+                    <Text fontSize="xl">{hours.toString()}</Text>
+                    <Text>:</Text>
+                    <Text fontSize="xl">{mins.toString()}</Text>
+                    <Text>:</Text>
+                    <Text fontSize="xl">{secs.toString()}</Text>
+                  </HStack>
                 )}
                 <TableContainer>
                   <Table variant="simple">
@@ -201,6 +240,14 @@ const ProductPage = () => {
                           {product.minimumPremium} %
                         </Td>
                       </Tr>
+                      <Tr>
+                        <Td>
+                          <Text fontSize="xl">End Time:</Text>
+                        </Td>
+                        <Td isNumeric fontSize="xl">
+                          {product.endTime}
+                        </Td>
+                      </Tr>
                     </Tbody>
                   </Table>
                 </TableContainer>
@@ -218,6 +265,7 @@ const ProductPage = () => {
                       type="number"
                       isInvalid={!valid}
                       value={value}
+                      disabled={status === "Expired"}
                       onChange={(e) => {
                         if (
                           e.target.value <
@@ -234,17 +282,25 @@ const ProductPage = () => {
                       }}
                     />
                   </InputGroup>
+
                   <Button
                     _hover={{ backgroundColor: "rgb(40,90,80)" }}
                     w="50%"
                     bg="rgb(60,72,107)"
                     color="rgb(240,240,240)"
-                    isDisabled={!valid}
+                    isDisabled={!valid || status === "Expired"}
                     onClick={() => {
+                      let temp = bids;
+                      temp.unshift({
+                        username: "You",
+                        time: Date(),
+                        bid_amt: value,
+                      });
+                      setBids(temp);
+                      console.log(bids);
                       socket.emit("bid_request", {
-                        product: product._id,
+                        product: { ...product, currentPrice: value },
                         token: window.localStorage.getItem("token").toString(),
-                        price: value,
                         _id: product._id,
                       });
                     }}
@@ -258,86 +314,20 @@ const ProductPage = () => {
             <Heading m="15px">Placed Bids</Heading>
             <TableContainer w="100%" maxH="50vmin" overflowY="auto" minW="100%">
               <Table variant="simple" size="md" w="100%">
-                <Tr bg="green.200">
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
-                <Tr>
-                  <Td>Pritesh Parmar</Td>
-                  <Td>{Date()}</Td>
-                  <Td isNumeric>Rs. 18999</Td>
-                </Tr>
+                <Tbody>
+                  {bids.map((bid, id) => {
+                    return (
+                      <Tr
+                        key={id}
+                        bg={id === 0 ? "green.200" : "rgb(240,240,240)"}
+                      >
+                        <Td>{bid.username}</Td>
+                        <Td>{bid.time}</Td>
+                        <Td isNumeric>Rs. {bid.bid_amt}</Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
               </Table>
             </TableContainer>
             <Divider mt={5} />
@@ -400,6 +390,9 @@ const ProductPage = () => {
           </Box>
         </Center>
       )}
+      {/* <footer style={{ position: "absolute", bottom: "0" }}> */}
+
+      {/* </footer> */}
     </Flex>
   );
 };

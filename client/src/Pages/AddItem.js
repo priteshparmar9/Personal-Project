@@ -9,6 +9,7 @@ function AddItem() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = "Add Item";
     const url = process.env.REACT_APP_BACKEND_BASE_URL + "sellers/is_seller/";
     axios
       .post(url, {
