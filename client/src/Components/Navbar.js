@@ -234,6 +234,7 @@ const Navbar = (props) => {
                         cursor="pointer"
                         onClick={() => {
                           if (query) {
+                            onClose();
                             navigate(`/search/${query}`);
                           }
                         }}
@@ -250,6 +251,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             Login
                           </Button>
@@ -260,6 +264,9 @@ const Navbar = (props) => {
                             _hover={{
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
+                            }}
+                            onClick={() => {
+                              onClose();
                             }}
                           >
                             Signup
@@ -272,6 +279,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             Login
                           </Button>
@@ -282,6 +292,9 @@ const Navbar = (props) => {
                             _hover={{
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
+                            }}
+                            onClick={() => {
+                              onClose();
                             }}
                           >
                             Login
@@ -297,6 +310,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             Current Winnings
                           </Button>
@@ -307,6 +323,9 @@ const Navbar = (props) => {
                             _hover={{
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
+                            }}
+                            onClick={() => {
+                              onClose();
                             }}
                           >
                             Remaining Payments
@@ -319,6 +338,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             History
                           </Button>
@@ -330,6 +352,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             My Orders
                           </Button>
@@ -340,6 +365,9 @@ const Navbar = (props) => {
                             _hover={{
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
+                            }}
+                            onClick={() => {
+                              onClose();
                             }}
                           >
                             Update Profile
@@ -353,6 +381,9 @@ const Navbar = (props) => {
                               color: "black",
                               bgColor: "rgb(240, 240, 240)",
                             }}
+                            onClick={() => {
+                              onClose();
+                            }}
                           >
                             Ended
                           </Button>
@@ -365,6 +396,7 @@ const Navbar = (props) => {
                               bgColor: "rgb(240, 240, 240)",
                             }}
                             onClick={() => {
+                              onClose();
                               window.localStorage.clear();
                               setLoggedIn({ ...loggedin, loggedin: false });
                             }}

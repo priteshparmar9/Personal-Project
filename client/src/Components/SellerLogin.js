@@ -39,7 +39,7 @@ function SellerLogin() {
         axios.post(url, user).then((res) => {
           // console.log(res);
           if (res.data.code === 200) {
-            console.log(res.data.token);
+            // console.log(res.data.token);
             window.localStorage.setItem("eauc_token", res.data.token);
             navigate("/");
           } else if (res.data.code === 201) {

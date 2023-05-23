@@ -33,13 +33,13 @@ function Forgot() {
     else setShowPass(true);
   }
   useEffect(() => {
-    console.log(id);
+    // console.log(id);
     const url =
       process.env.REACT_APP_BACKEND_BASE_URL + "users/validate_change_password";
 
     async function validate() {
       const res = await axios.post(url, { id: id });
-      console.log(res);
+      // console.log(res);
       if (res.data.code === 201) {
         navigate("/");
       } else if (res.data.code === 500) {

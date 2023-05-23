@@ -66,7 +66,7 @@ function BuyerSignup() {
         const url = process.env.REACT_APP_BACKEND_BASE_URL + "users/signup/";
         // setUser({ ...user, pic: pro_pic });
         user.pic = pro_pic;
-        console.log(user);
+        // console.log(user);
         // const res = await axios.post(url, user);
 
         axios
@@ -359,7 +359,7 @@ function BuyerSignup() {
                       extension[0] === ".GIF"
                     ) {
                       setPic(e.target.files[0]);
-                      console.log(pro_pic);
+                      // console.log(pro_pic);
                     } else {
                       toast("Only PNG/JPG/GIF file are supported!");
                       setPic({});

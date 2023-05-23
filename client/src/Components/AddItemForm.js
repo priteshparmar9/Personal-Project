@@ -58,7 +58,7 @@ const AddItemForm = () => {
   const Submit = (e) => {
     e.preventDefault();
     setSubmit(true);
-    console.log(product);
+    // console.log(product);
     const url = process.env.REACT_APP_BACKEND_BASE_URL + "products/add_product";
     const formData = new FormData();
     formData.append("title", product.title);

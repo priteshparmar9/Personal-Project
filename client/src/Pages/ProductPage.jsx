@@ -308,7 +308,7 @@ const ProductPage = () => {
                           bid_amt: value,
                         });
                         setBids(temp);
-                        console.log(bids);
+                        // console.log(bids);
                         socket.emit("bid_request", {
                           product: { ...product, currentPrice: value },
                           bids: bids,

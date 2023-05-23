@@ -29,7 +29,7 @@ const CurrentWinning = () => {
         },
       })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         setProduct(res.data.winnings);
       });
   }, []);
