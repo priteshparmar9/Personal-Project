@@ -26,7 +26,7 @@ import {
 import { io } from "socket.io-client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductAttachmentColumn from "../Components/ProductAttachmentColumn";
 import Error from "./Error";
 import { ToastContainer, toast } from "react-toastify";
@@ -60,7 +60,9 @@ const ProductPage = () => {
   const [days, setDays] = useState(0);
   const [mins, setMins] = useState(0);
   const [secs, setSecs] = useState(0);
+  const [isLoggedIn, setLogin] = useState(false);
   const [productEndTime, setProductEndtime] = useState(Date());
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fun = async () => {
@@ -104,6 +106,15 @@ const ProductPage = () => {
       }
     };
     fun();
+    const token = window.localStorage.getItem("token");
+    if (token) {
+      let url = process.env.REACT_APP_BACKEND_BASE_URL + "users/validateToken";
+      axios.post(url, { token: token }).then((res) => {
+        if (res.status === 200) {
+          setLogin(true);
+        }
+      });
+    }
   }, []);
 
   let tm = setTimeout(() => {
@@ -129,9 +140,8 @@ const ProductPage = () => {
     socket.emit("join", id);
     socket.on("bid_acceped", (res) => {
       toast("New bid accepted!");
-      console.log(res);
       setProduct(res.bid.product);
-      let temp = bids;
+      let temp = res.bid.bids;
       temp.unshift(res.bid);
       setBids(temp);
     });
@@ -252,62 +262,81 @@ const ProductPage = () => {
                   </Table>
                 </TableContainer>
 
-                <HStack>
-                  <InputGroup w="50%">
-                    <InputLeftElement
-                      pointerEvents="none"
-                      color="gray.300"
-                      fontSize="1.2em"
-                      children="Rs. "
-                    />
-                    <Input
-                      placeholder="Enter amount for custom bid"
-                      type="number"
-                      isInvalid={!valid}
-                      value={value}
-                      disabled={status === "Expired"}
-                      onChange={(e) => {
-                        if (
-                          e.target.value <
-                          (product.currentPrice
-                            ? product.currentPrice *
-                              (1 + product.minimumPremium / 100)
-                            : product.basePrice)
-                        ) {
-                          setValid(false);
-                        } else {
-                          setValid(true);
-                        }
-                        setVal(e.target.value);
-                      }}
-                    />
-                  </InputGroup>
+                {isLoggedIn ? (
+                  <HStack>
+                    <InputGroup w="50%">
+                      <InputLeftElement
+                        pointerEvents="none"
+                        color="gray.300"
+                        fontSize="1.2em"
+                        children="Rs. "
+                      />
+                      <Input
+                        placeholder="Enter amount for custom bid"
+                        type="number"
+                        isInvalid={!valid}
+                        value={value}
+                        disabled={status === "Expired"}
+                        onChange={(e) => {
+                          if (
+                            e.target.value <
+                            (product.currentPrice
+                              ? product.currentPrice *
+                                (1 + product.minimumPremium / 100)
+                              : product.basePrice)
+                          ) {
+                            setValid(false);
+                          } else {
+                            setValid(true);
+                          }
+                          setVal(e.target.value);
+                        }}
+                      />
+                    </InputGroup>
 
-                  <Button
-                    _hover={{ backgroundColor: "rgb(40,90,80)" }}
-                    w="50%"
-                    bg="rgb(60,72,107)"
-                    color="rgb(240,240,240)"
-                    isDisabled={!valid || status === "Expired"}
-                    onClick={() => {
-                      let temp = bids;
-                      temp.unshift({
-                        username: "You",
-                        time: Date(),
-                        bid_amt: value,
-                      });
-                      setBids(temp);
-                      console.log(bids);
-                      socket.emit("bid_request", {
-                        product: { ...product, currentPrice: value },
-                        token: window.localStorage.getItem("token").toString(),
-                        _id: product._id,
-                      });
-                    }}
-                  >
-                    Place Bid
-                  </Button>
-                </HStack>
+                    <Button
+                      _hover={{ backgroundColor: "rgb(40,90,80)" }}
+                      w="50%"
+                      bg="rgb(60,72,107)"
+                      color="rgb(240,240,240)"
+                      isDisabled={!valid || status === "Expired"}
+                      onClick={() => {
+                        let temp = bids;
+                        temp.unshift({
+                          username: "You",
+                          time: Date(),
+                          bid_amt: value,
+                        });
+                        setBids(temp);
+                        console.log(bids);
+                        socket.emit("bid_request", {
+                          product: { ...product, currentPrice: value },
+                          bids: bids,
+                          token: window.localStorage
+                            .getItem("token")
+                            .toString(),
+                          _id: product._id,
+                        });
+                      }}
+                    >
+                      Place Bid
+                    </Button>
+                  </HStack>
+                ) : (
+                  <HStack>
+                    <Button
+                      _hover={{ backgroundColor: "rgb(40,90,80)" }}
+                      w="100%"
+                      bg="rgb(60,72,107)"
+                      color="rgb(240,240,240)"
+                      onClick={() => {
+                        navigate("/login");
+                      }}
+                    >
+                      Login
+                    </Button>
+                  </HStack>
+                )}
               </GridItem>
             </Grid>
             <Divider mt={5} />

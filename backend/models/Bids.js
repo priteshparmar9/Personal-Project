@@ -7,6 +7,11 @@ const BidsSchema = mongoose.Schema({
     ref: "Product",
     required: true,
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   username: {
     type: String,
     required: true,

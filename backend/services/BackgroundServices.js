@@ -1,5 +1,7 @@
 const OTPS = require("../models/OTP");
-module.exports = function Clear() {
+const Product = require("../models/Product");
+const Schedule = require("node-schedule");
+function Clear() {
   setTimeout(async () => {
     console.log(Date());
     const otps = await OTPS.find({
@@ -10,4 +12,6 @@ module.exports = function Clear() {
     for (let i = 0; i < otps.length; i++) otps[i].remove();
   }, 1000 * 5 * 60 + 10000);
   //   setTimeout(() => {}, 1000 * 60 * 5);
-};
+}
+
+module.exports = { Clear };

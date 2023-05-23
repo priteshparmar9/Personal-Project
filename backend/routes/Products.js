@@ -14,7 +14,9 @@ const User = require("../models/User");
 
 router.get("/", async (req, res) => {
   try {
-    let products = await Product.find();
+    let products = await Product.find({
+      $or: [{ status: "Active" }, { status: null }],
+    });
     let productDTO = [];
     for (let i = 0; i < products.length; i++) {
       productDTO.push({

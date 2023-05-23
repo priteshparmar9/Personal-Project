@@ -20,6 +20,7 @@ const ProductList = () => {
           spacing={2}
           templateColumns="repeat(auto-fit, minmax(300px, 1fr))"
           minW="65vw"
+          m="10"
         >
           {products.map((product, id) => {
             return (

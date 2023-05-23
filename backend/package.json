@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.3",
     "multer": "^1.4.5-lts.1",
+    "node-schedule": "^2.1.1",
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
     "rpc-request": "^7.1.1",

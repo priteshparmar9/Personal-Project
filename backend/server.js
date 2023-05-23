@@ -3,8 +3,11 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const app = express();
-const socketService = require("./services/SocketService");
+const schedule = require("node-schedule");
+const SocketService = require("./services/SocketService");
+const { Update } = require("./services/BackgroundServices");
 const cors = require("cors");
+const Product = require("./models/Product");
 
 require("dotenv").config();
 const db_url = process.env.DATABASE_URL;
@@ -39,12 +42,24 @@ sellerRouter.use(bodyParser.json());
 app.use("/sellers", sellerRouter);
 
 const productRouter = require("./routes/Products");
-const SocketService = require("./services/SocketService");
 productRouter.use(bodyParser.json());
 app.use("/products", productRouter);
 
 const server = app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
+});
+
+schedule.scheduleJob("*/15 * * * *", async () => {
+  console.log("Updating Products");
+  const product = await Product.find({
+    $or: [{ status: "Active" }, { status: null }],
+  });
+  for (pr in product) {
+    if (new Date(product[pr].endTime) < new Date()) {
+      product[pr].status = "Expired";
+      await product[pr].save();
+    }
+  }
 });
 
 SocketService(server);

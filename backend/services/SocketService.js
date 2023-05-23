@@ -4,7 +4,7 @@ const { PlaceBid } = require("./BidService");
 const Bids = require("../models/Bids");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-
+const mailer = require("../services/BidMail");
 const SocketService = (server) => {
   const io = require("socket.io")(server, {
     cors: {
@@ -47,6 +47,11 @@ const SocketService = (server) => {
         if (user) {
           let product = await Product.findById(req.product._id);
           product.currentPrice = req.product.currentPrice;
+          if (product.currentWinner) {
+            console.log("Emailing");
+            const user = await User.findById(product.currentWinner);
+            mailer(user.email, product);
+          }
           product.currentWinner = user;
           await product.save();
           await PlaceBid(product, user, Date(), req.product.currentPrice);
@@ -54,10 +59,15 @@ const SocketService = (server) => {
             bid: {
               product: product,
               username: user.username,
+              user: user,
               bid_amt: req.product.currentPrice,
               time: Date(),
+              bids: req.bids,
             },
           });
+        } else {
+          console.log("Invalid");
+          return { message: "Invalid Token" };
         }
       } catch (err) {
         console.log(err);
