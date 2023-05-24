@@ -45,6 +45,10 @@ const productRouter = require("./routes/Products");
 productRouter.use(bodyParser.json());
 app.use("/products", productRouter);
 
+const addressRouter = require("./routes/Address");
+addressRouter.use(bodyParser.json());
+app.use("/address", addressRouter);
+
 const server = app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
 });

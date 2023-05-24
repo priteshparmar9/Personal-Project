@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
 router.get("/expired", async (req, res) => {
   try {
     let products = await Product.find({
-      status: "Expired",
+      $or: [{ status: "Sold" }, { status: "Expired" }],
     });
     let productDTO = [];
     for (let i = 0; i < products.length; i++) {
@@ -202,4 +202,46 @@ router.post("/getWinning", async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+router.post("/remainingCheckouts", async (req, res) => {
+  try {
+    console.log(req.body.headers);
+    let token = req.body.headers["authorization"];
+    token = token.replace(/^Bearer\s+/, "");
+
+    jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
+      if (err) {
+        res.status(205).json({ message: "Invalid Token" });
+      }
+      let user;
+      if (decoded.email)
+        user = await User.find({
+          $and: [{ email: decoded.email }],
+        });
+      if (user) {
+        console.log(user);
+        const products = await Product.find({
+          $and: [{ currentWinner: user }, { status: "Expired" }],
+        });
+        let productDTO = [];
+        for (let i = 0; i < products.length; i++) {
+          productDTO.push({
+            id: products[i]._id,
+            title: products[i].title,
+            basePrice: products[i].basePrice,
+            currentPrice: products[i].currentPrice,
+            pic: products[i].attachments[0],
+          });
+        }
+        res.status(200).json({ wonProducts: productDTO });
+      } else {
+        res.status(205).json({ message: "Invalid Token" });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+});
+
 module.exports = router;

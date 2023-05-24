@@ -139,7 +139,13 @@ const Navbar = (props) => {
                     >
                       Current Winnings
                     </MenuItem>
-                    <MenuItem>Remaining Payments</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/remainingCheckouts");
+                      }}
+                    >
+                      Remaining Checkouts
+                    </MenuItem>
                     <MenuItem>History</MenuItem>
                     <MenuItem>My Orders</MenuItem>
                     <MenuItem>Update Profile</MenuItem>
@@ -317,7 +323,7 @@ const Navbar = (props) => {
                             Current Winnings
                           </Button>
                         </Link>
-                        <Link to="/currentWinnings">
+                        <Link to="/remainingCheckouts">
                           <Button
                             bgColor="transparent"
                             _hover={{
@@ -328,7 +334,7 @@ const Navbar = (props) => {
                               onClose();
                             }}
                           >
-                            Remaining Payments
+                            Remaining Checkouts
                           </Button>
                         </Link>
                         <Link to="/currentWinnings">

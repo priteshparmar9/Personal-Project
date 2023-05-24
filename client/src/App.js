@@ -15,6 +15,8 @@ import Layout from "./Components/Layout";
 import SearchList from "./Pages/SearchList";
 import CurrentWinning from "./Pages/CurrentWinning";
 import Expired from "./Pages/Expired";
+import RemainingCheckouts from "./Pages/RemainingCheckouts";
+import Payment from "./Pages/Payment";
 
 function App() {
   const [loggedin, setLoggedIn] = useState({
@@ -51,8 +53,13 @@ function App() {
                 <Route path="seller/:name" element={<SellerPage />} />
                 <Route path="login" element={<Login />} />
                 <Route path="currentWinnings" element={<CurrentWinning />} />
+                <Route
+                  path="remainingCheckouts"
+                  element={<RemainingCheckouts />}
+                />
                 <Route path="expired" element={<Expired />} />
                 <Route path="search/:query" element={<SearchList />} />
+                <Route path="payment/:id" element={<Payment />} />
                 <Route path="*" element={<Error />} />
               </Route>
             </Routes>
