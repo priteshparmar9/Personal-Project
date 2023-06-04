@@ -49,6 +49,10 @@ const addressRouter = require("./routes/Address");
 addressRouter.use(bodyParser.json());
 app.use("/address", addressRouter);
 
+const paymentRouter = require("./routes/PaymentGateway");
+paymentRouter.use(bodyParser.json());
+app.use("/payment", paymentRouter);
+
 const server = app.listen(process.env.PORT || 8080, () => {
   console.log("Server started!!");
 });

@@ -60,6 +60,7 @@ function App() {
                 <Route path="expired" element={<Expired />} />
                 <Route path="search/:query" element={<SearchList />} />
                 <Route path="payment/:id" element={<Payment />} />
+
                 <Route path="*" element={<Error />} />
               </Route>
             </Routes>

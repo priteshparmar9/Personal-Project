@@ -230,7 +230,6 @@ router.post("/signup", async (req, res) => {
         otp: otp,
       });
       ot.save();
-      temp();
       mailer(req.body.email, otp);
       res.json({
         code: 200,
@@ -308,7 +307,6 @@ router.post("/forgot_password", async (req, res) => {
         otp: otp,
       });
       ot.save();
-      temp();
       // console.log(ot._id.toString());
       const link =
         process.env.FRONT_END_BASE_URL + "change_password/" + ot._id.toString();

@@ -148,7 +148,13 @@ const Navbar = (props) => {
                     </MenuItem>
                     <MenuItem>History</MenuItem>
                     <MenuItem>My Orders</MenuItem>
-                    <MenuItem>Update Profile</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/update");
+                      }}
+                    >
+                      Update Profile
+                    </MenuItem>
                   </MenuList>
                 </Menu>
 

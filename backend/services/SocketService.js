@@ -12,7 +12,7 @@ const SocketService = (server) => {
       methods: ["GET", "POST"],
     },
   });
-
+  // console.log(io.protocol);
   io.on("connection", (socket) => {
     console.log("client connected: ", socket.id);
 
