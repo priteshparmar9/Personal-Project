@@ -180,7 +180,18 @@ router.post("/getWinning", async (req, res) => {
         });
       if (user) {
         console.log(user);
-        const products = await Product.find({ currentWinner: user });
+        const products = await Product.find({
+          $and: [
+            { currentWinner: user },
+            {
+              $or: [
+                { status: "Active" },
+                { status: null },
+                { status: "Expired" },
+              ],
+            },
+          ],
+        });
         let productDTO = [];
         for (let i = 0; i < products.length; i++) {
           productDTO.push({

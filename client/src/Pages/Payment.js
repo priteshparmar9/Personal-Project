@@ -108,8 +108,8 @@ const Payment = () => {
   const [value, setValue] = useState("0");
 
   const selectAddress = (e) => {
-    console.log(e);
     setValue(e);
+    setAddress(addresses[+e]);
   };
 
   const fetchAddress = () => {

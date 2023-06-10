@@ -46,6 +46,7 @@ router.post("/verify", async (req, res) => {
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
+      console.log("Sold");
       let prod = await Product.findById(req.body.productId);
       prod.status = "Sold";
       await prod.save();
