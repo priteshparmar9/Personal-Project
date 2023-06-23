@@ -148,10 +148,10 @@ const ProductPage = () => {
   }, [socket]);
 
   return (
-    <Flex bgColor="rgb(240,240,240)" minH="100vh" flexDir="column">
+    <Flex bgColor="white" minH="100vh" flexDir="column" >
       {error && <Error />}
       {isLoading && (
-        <Center w="100%" minH="100vh" bgColor="rgb(240,240,240)">
+        <Center w="100%" minH="100vh" bgColor="white">
           <Spinner
             thickness="5px"
             speed="0.5s"
@@ -298,7 +298,7 @@ const ProductPage = () => {
                       _hover={{ backgroundColor: "rgb(40,90,80)" }}
                       w="50%"
                       bg="rgb(60,72,107)"
-                      color="rgb(240,240,240)"
+                      color="white"
                       isDisabled={!valid || status === "Expired"}
                       onClick={() => {
                         let temp = bids;
@@ -328,7 +328,7 @@ const ProductPage = () => {
                       _hover={{ backgroundColor: "rgb(40,90,80)" }}
                       w="100%"
                       bg="rgb(60,72,107)"
-                      color="rgb(240,240,240)"
+                      color="white"
                       onClick={() => {
                         navigate("/login");
                       }}
@@ -346,10 +346,7 @@ const ProductPage = () => {
                 <Tbody>
                   {bids.map((bid, id) => {
                     return (
-                      <Tr
-                        key={id}
-                        bg={id === 0 ? "green.200" : "rgb(240,240,240)"}
-                      >
+                      <Tr key={id} bg={id === 0 ? "green.200" : "white"}>
                         <Td>{bid.username}</Td>
                         <Td>{bid.time}</Td>
                         <Td isNumeric>Rs. {bid.bid_amt}</Td>
@@ -374,12 +371,7 @@ const ProductPage = () => {
             <Heading as="h3" size="md" noOfLines={1} m={5}>
               About Seller
             </Heading>
-            <Flex
-              m="5"
-              w="100%"
-              justifyContent="space-evenly"
-              bgColor="rgb(240,240,240)"
-            >
+            <Flex m="5" w="100%" justifyContent="space-evenly" bgColor="white">
               <Image
                 borderRadius="full"
                 boxSize="300px"
@@ -419,9 +411,7 @@ const ProductPage = () => {
           </Box>
         </Center>
       )}
-      {/* <footer style={{ position: "absolute", bottom: "0" }}> */}
 
-      {/* </footer> */}
     </Flex>
   );
 };

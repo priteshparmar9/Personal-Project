@@ -17,6 +17,7 @@ import CurrentWinning from "./Pages/CurrentWinning";
 import Expired from "./Pages/Expired";
 import RemainingCheckouts from "./Pages/RemainingCheckouts";
 import Payment from "./Pages/Payment";
+import UpdateProfile from "./Pages/UpdateProfile";
 
 function App() {
   const [loggedin, setLoggedIn] = useState({
@@ -60,7 +61,7 @@ function App() {
                 <Route path="expired" element={<Expired />} />
                 <Route path="search/:query" element={<SearchList />} />
                 <Route path="payment/:id" element={<Payment />} />
-
+                <Route path="update" element={<UpdateProfile />} />
                 <Route path="*" element={<Error />} />
               </Route>
             </Routes>

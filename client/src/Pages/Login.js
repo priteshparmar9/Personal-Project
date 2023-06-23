@@ -15,7 +15,8 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function Login(props) {
+  const setLoggedIn = props.setLoggedIn;
   const navigate = useNavigate();
   useEffect(() => {
     let token = window.localStorage.getItem("token");
@@ -23,7 +24,7 @@ function Login() {
     if (token) {
       let url = process.env.REACT_APP_BACKEND_BASE_URL + "users/validateToken";
       axios.post(url, { token: token }).then((res) => {
-        if (res.status == 200) {
+        if (res.status === 200) {
           navigate("/");
         }
       });
@@ -53,10 +54,10 @@ function Login() {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <BuyerLogin />
+              <BuyerLogin setLoggedIn={setLoggedIn} />
             </TabPanel>
             <TabPanel>
-              <SellerLogin />
+              <SellerLogin setLoggedIn={setLoggedIn} />
             </TabPanel>
           </TabPanels>
         </Tabs>

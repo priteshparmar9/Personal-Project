@@ -1,8 +1,7 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useEffect } from "react";
 import axios from "axios";
-import Sidebar from "../Components/Layout";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddItemForm from "../Components/AddItemForm";
 
 function AddItem() {

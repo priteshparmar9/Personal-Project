@@ -125,7 +125,7 @@ const Navbar = (props) => {
                   </Button>
                 </Link>
               </HStack>
-            ) : (
+            ) : loggedin.role == "buyer" ? (
               <HStack>
                 <Menu>
                   <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
@@ -174,7 +174,70 @@ const Navbar = (props) => {
                     _hover={{ color: "black", bgColor: "rgb(240, 240, 240)" }}
                     onClick={() => {
                       window.localStorage.clear();
-                      setLoggedIn({ ...loggedin, loggedin: false });
+                      setLoggedIn({ loggedin: false, role: "none" });
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </Link>
+              </HStack>
+            ) : (
+              <HStack>
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                    My Account
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/additem");
+                      }}
+                    >
+                      Add Item
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/currentWinnings");
+                      }}
+                    >
+                      Current Winnings
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/remainingCheckouts");
+                      }}
+                    >
+                      Remaining Checkouts
+                    </MenuItem>
+                    <MenuItem>History</MenuItem>
+                    <MenuItem>My Orders</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/update");
+                      }}
+                    >
+                      Update Profile
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+
+                <Link to="/expired">
+                  <Button
+                    bgColor="transparent"
+                    color="rgb(240, 240, 240)"
+                    _hover={{ color: "black", bgColor: "rgb(240, 240, 240)" }}
+                  >
+                    Ended
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button
+                    bgColor="transparent"
+                    color="rgb(240, 240, 240)"
+                    _hover={{ color: "black", bgColor: "rgb(240, 240, 240)" }}
+                    onClick={() => {
+                      window.localStorage.clear();
+                      setLoggedIn({ loggedin: false, role: "none" });
                     }}
                   >
                     Logout

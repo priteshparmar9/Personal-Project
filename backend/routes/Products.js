@@ -60,6 +60,7 @@ router.get("/expired", async (req, res) => {
 
 router.post("/add_product", SellerTokenValidator, async (req, res) => {
   // res.send("Nothing");
+  console.log(req.body);
   console.log("Token Verified");
   try {
     let token = req.headers["authorization"];
@@ -81,13 +82,18 @@ router.post("/add_product", SellerTokenValidator, async (req, res) => {
         try {
           let product = new Product({
             seller: user,
-            endTime: new Date(req.body.endTime),
             title: req.body.title,
             basePrice: req.body.basePrice,
-            minimumPremium: req.body.minimumPremium,
             description: req.body.description,
+            onAuc: req.body.onAuction,
           });
 
+          if (req.body.onAuction == 'true') {
+            product.endTime = new Date(req.body.endTime);
+            product.minimumPremium = req.body.minimumPremium;
+          } else {
+            product.noOfItems = req.body.items;
+          }
           for (let i = 0; i <= req.files.attachments.length; i++) {
             if (i != req.files.attachments.length)
               attachments.push(

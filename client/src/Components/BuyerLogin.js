@@ -1,6 +1,6 @@
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { FcGoogle } from "react-icons/fc";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { FaFacebook } from "react-icons/fa";
 import {
   Box,
@@ -15,24 +15,22 @@ import {
   InputRightElement,
   Spinner,
   Stack,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function BuyerLogin(props) {
+  const setLoggedIn = props.setLoggedIn;
   const [user, setUser] = useState({
     username: "",
     password: "",
   });
   const [showPassword, setShowPass] = useState(false);
   const [submitted, setSubmit] = useState(false);
-  const [profile, setProfile] = useState([]);
 
   const navigate = useNavigate();
   function submit(e) {
@@ -44,42 +42,64 @@ function BuyerLogin(props) {
       const url = process.env.REACT_APP_BACKEND_BASE_URL + "users/login/";
       try {
         axios.post(url, user).then((res) => {
-          // console.log(res);
+          console.log(res);
           if (res.data.code === 200) {
             // console.log(res.data.token);
             window.localStorage.setItem("token", res.data.token);
+            setLoggedIn({
+              loggedin: true,
+              role: "buyer",
+            });
             navigate("/");
           } else if (res.data.code === 201) {
-            toast({
-              title:
-                "Invalid Credentials! Please login again with correct credentials",
-              status: "error",
-              isClosable: true,
-              position: "top-right",
-            });
+            toast.error(
+              "Invalid Credentials! Please login again with correct credentials",
+              {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: false,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              }
+            );
           } else {
-            toast({
-              title: "Internal Server Error! Please try again later",
-              status: "warning",
-              isClosable: true,
-              position: "top-right",
+            toast.error("Internal Server Error! Please try again later", {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: true,
+              closeOnClick: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
             });
           }
         });
       } catch (error) {
-        toast({
-          title: "Internal Server Error! Please try again later",
-          status: "warning",
-          isClosable: true,
-          position: "top-right",
+        toast.error("Internal Server Error! Please try again later", {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: false,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
         });
       }
     } else {
-      toast({
-        title: "Please enter all fields inorder to login!",
-        status: "warning",
-        isClosable: true,
-        position: "top-right",
+      toast.error("Please enter all fields inorder to login!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
     }
     setSubmit(false);
@@ -107,9 +127,13 @@ function BuyerLogin(props) {
           const url =
             process.env.REACT_APP_BACKEND_BASE_URL + "users/google_login/";
           axios.post(url, res.data).then((res) => {
-            if (res.data.code == 200) {
+            if (res.data.code === 200) {
               // console.log(res);
               window.localStorage.setItem("token", res.data.token);
+              setLoggedIn({
+                loggedin: true,
+                role: "buyer",
+              });
               window.location.reload();
             } else {
               toast.error(
@@ -145,7 +169,18 @@ function BuyerLogin(props) {
             boxShadow="md"
             borderRadius={"md"}
           >
-            <ToastContainer />
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
             <FormControl>
               <InputGroup>
                 <InputLeftElement

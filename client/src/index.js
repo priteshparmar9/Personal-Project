@@ -4,6 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Global } from "@emotion/react";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -16,6 +17,15 @@ root.render(
           redirect_uri: window.location.origin,
         }}
       > */}
+      <Global
+        styles={{
+          ".clearfix::after": {
+            content: `""`,
+            display: "table",
+            clear: "both",
+          },
+        }}
+      />
       <App />
       {/* </Auth0Provider> */}
     </ChakraProvider>

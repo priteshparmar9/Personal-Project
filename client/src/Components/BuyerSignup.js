@@ -242,7 +242,6 @@ function BuyerSignup() {
               pauseOnHover
               theme="light"
             />
-            <ToastContainer />
             <FormControl>
               <InputGroup>
                 <InputLeftElement

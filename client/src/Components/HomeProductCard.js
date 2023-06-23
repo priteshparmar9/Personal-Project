@@ -63,7 +63,7 @@ const HomeProductCard = (props) => {
             />
           </Center>
           <Stack mt="6" spacing="3">
-            <Heading size="md">{product.title}</Heading>
+            <Heading size="md" noOfLines={2}>{product.title}</Heading>
 
             <TableContainer overflowX={"hidden"}>
               <Table size="sm">

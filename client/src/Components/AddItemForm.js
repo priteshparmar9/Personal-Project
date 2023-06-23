@@ -1,4 +1,4 @@
-import { EditIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -20,6 +20,9 @@ import {
   Tag,
   TagCloseButton,
   Textarea,
+  Switch,
+  InputRightElement,
+  Tooltip,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -34,19 +37,17 @@ const AddItemForm = () => {
     category: [],
     endTime: Date,
     attachments: [],
+    items: 0,
+    onAuction: true,
   });
   const [categories, setCategory] = useState([]);
   const [catInput, setCatInput] = useState("");
   const [submitted, setSubmit] = useState(false);
-
   function categoryHandler(e) {
     setCatInput(e.target.value);
-    // console.log(catInput);
     let arr = catInput.split("#");
     setCategory(arr);
-    // console.log(arr);
     setProduct({ ...product, category: arr });
-    // console.log(product);
   }
 
   const handler = (e) => {
@@ -58,7 +59,6 @@ const AddItemForm = () => {
   const Submit = (e) => {
     e.preventDefault();
     setSubmit(true);
-    // console.log(product);
     const url = process.env.REACT_APP_BACKEND_BASE_URL + "products/add_product";
     const formData = new FormData();
     formData.append("title", product.title);
@@ -67,8 +67,10 @@ const AddItemForm = () => {
     }
     formData.append("endTime", product.endTime);
     formData.append("category", product.category);
+    formData.append("onAuction", product.onAuction);
     formData.append("description", product.description);
     formData.append("minimumPremium", product.minimumPremium);
+    formData.append("items", product.items);
     formData.append("basePrice", product.basePrice);
     axios
       .post(url, formData, {
@@ -111,6 +113,7 @@ const AddItemForm = () => {
       <Flex
         flexDirection="column"
         minH="100vh"
+        minW="100vw"
         backgroundColor="white.100"
         justifyContent="center"
         alignItems="center"
@@ -160,43 +163,80 @@ const AddItemForm = () => {
                     </NumberInput>
                   </InputGroup>
                 </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>Minimum Premium</FormLabel>
-                  <InputGroup w="100%">
-                    <InputLeftAddon children="%" fontSize="1.2em" />
-                    <NumberInput
-                      defaultValue={2.0}
-                      precision={2}
-                      step={10}
-                      w="100%"
-                      disabled={submitted}
-                      name="minimumPremium"
-                      value={product.minimumPremium}
-                      onChange={(e) =>
-                        setProduct({ ...product, minimumPremium: e })
-                      }
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </InputGroup>
-                </FormControl>
+                {product.onAuction && (
+                  <FormControl isRequired>
+                    <FormLabel>Minimum Premium</FormLabel>
+                    <InputGroup w="100%">
+                      <InputLeftAddon children="%" fontSize="1.2em" />
+                      <NumberInput
+                        defaultValue={2.0}
+                        precision={2}
+                        step={10}
+                        w="100%"
+                        disabled={submitted}
+                        name="minimumPremium"
+                        value={product.minimumPremium}
+                        onChange={(e) =>
+                          setProduct({ ...product, minimumPremium: e })
+                        }
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </InputGroup>
+                  </FormControl>
+                )}
+                {!product.onAuction && (
+                  <FormControl isRequired>
+                    <FormLabel>No. of items</FormLabel>
+                    <InputGroup w="100%">
+                      <NumberInput
+                        step={1}
+                        disabled={submitted}
+                        w="100%"
+                        name="items"
+                        value={product.items}
+                        onChange={(e) => setProduct({ ...product, items: e })}
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </InputGroup>
+                  </FormControl>
+                )}
               </HStack>
-              <FormControl isRequired>
-                <FormLabel>End Time</FormLabel>
-                <Input
-                  type="datetime-local"
-                  disabled={submitted}
-                  value={product.endTime}
-                  min={new Date().toISOString().slice(0, 16)}
-                  placeholder="End Time"
-                  name="endTime"
-                  onChange={handler}
+              <FormControl display="flex" alignItems="center">
+                <FormLabel htmlFor="email-alerts" mb="0">
+                  Want to sell this item on Auction?
+                </FormLabel>
+                <Switch
+                  id="email-alerts"
+                  onChange={(e) =>
+                    setProduct({ ...product, onAuction: !product.onAuction })
+                  }
+                  defaultChecked
                 />
               </FormControl>
+              {product.onAuction && (
+                <FormControl isRequired>
+                  <FormLabel>End Time</FormLabel>
+                  <Input
+                    type="datetime-local"
+                    disabled={submitted}
+                    value={product.endTime}
+                    min={new Date().toISOString().slice(0, 16)}
+                    placeholder="End Time"
+                    name="endTime"
+                    onChange={handler}
+                  />
+                </FormControl>
+              )}
               <FormControl>
                 <FormLabel>Product Description</FormLabel>
                 <Textarea
@@ -227,7 +267,7 @@ const AddItemForm = () => {
                 <Input
                   value={catInput}
                   type="text"
-                  placeholder="Enter Categories"
+                  placeholder="Enter Categories (You can separate them using #)"
                   onChangeCapture={categoryHandler}
                   disabled={submitted}
                 />

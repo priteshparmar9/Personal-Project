@@ -21,7 +21,7 @@ async function uploadPic(username, pic) {
         },
       },
       (res) => {
-        // console.log("statusCode: ", res.statusCode);
+        console.log("statusCode: ", res.statusCode);
       }
     );
 

@@ -145,6 +145,7 @@ router.post("/login", async (req, res) => {
           code: 200,
           token: jwt.sign(
             {
+              isSeller: true,
               _id: available_users._id,
               username: available_users.username,
               email: available_users.email,

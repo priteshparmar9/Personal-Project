@@ -5,85 +5,35 @@ import {
   Center,
   FormControl,
   FormHelperText,
+  HStack,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
   Spinner,
   Stack,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
-import axios from "axios";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
-function SellerLogin(props) {
-  const setLoggedIn = props.setLoggedIn;
+const UpdateProfile = () => {
+  const [showPassword, setShowPass] = useState(false);
+  const [otp, setOtp] = useState("");
   const [user, setUser] = useState({
     username: "",
     password: "",
+    re_password: "",
+    email: "",
+    pic: Object,
   });
-  const [showPassword, setShowPass] = useState(false);
+  const [pro_pic, setPic] = useState();
+  const [otpSent, setOTP] = useState(false);
   const [submitted, setSubmit] = useState(false);
-
   const navigate = useNavigate();
-  const toast = useToast();
-  function submit(e) {
-    e.preventDefault();
-    setShowPass(false);
-    setSubmit(true);
-
-    if (user.username && user.password) {
-      const url = process.env.REACT_APP_BACKEND_BASE_URL + "sellers/login/";
-      try {
-        axios.post(url, user).then((res) => {
-          // console.log(res);
-          if (res.data.code === 200) {
-            // console.log(res.data.token);
-            window.localStorage.setItem("eauc_token", res.data.token);
-            setLoggedIn({
-              loggedin: true,
-              role: "seller",
-            });
-            navigate("/");
-          } else if (res.data.code === 201) {
-            toast({
-              title:
-                "Invalid Credentials! Please login again with correct credentials",
-              status: "error",
-              isClosable: true,
-              position: "top-right",
-            });
-          } else {
-            toast({
-              title: "Internal Server Error! Please try again later",
-              status: "warning",
-              isClosable: true,
-              position: "top-right",
-            });
-          }
-        });
-      } catch (error) {
-        toast({
-          title: "Internal Server Error! Please try again later",
-          status: "warning",
-          isClosable: true,
-          position: "top-right",
-        });
-      }
-    } else {
-      toast({
-        title: "Please enter all fields inorder to login!",
-        status: "warning",
-        isClosable: true,
-        position: "top-right",
-      });
-    }
-    setSubmit(false);
-  }
   return (
-    <Center>
+    <Center h="90vh">
       <Box minW={{ base: "90%", md: "468px" }}>
         <form>
           <Stack
@@ -93,6 +43,18 @@ function SellerLogin(props) {
             boxShadow="md"
             borderRadius={"md"}
           >
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
             <FormControl>
               <InputGroup>
                 <InputLeftElement
@@ -106,7 +68,6 @@ function SellerLogin(props) {
                   value={user.username}
                   onChange={(e) => {
                     setUser({ ...user, username: e.target.value });
-                    // console.log(user);
                   }}
                 />
               </InputGroup>
@@ -128,13 +89,8 @@ function SellerLogin(props) {
                   }}
                 />
                 <InputRightElement width="4.5rem">
-                  <Button
-                    h="1.75rem"
-                    size="sm"
-                    onClick={() => {
-                      setShowPass(!showPassword);
-                    }}
-                  >
+                  {/* onClick={handleShowClick} */}
+                  <Button h="1.75rem" size="sm">
                     {showPassword ? <ViewOffIcon /> : <ViewIcon />}
                   </Button>
                 </InputRightElement>
@@ -144,7 +100,7 @@ function SellerLogin(props) {
                   <Link to="../signup">Create new Account</Link>
                 </FormHelperText>
                 <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
+                  <Link to="../forgot_password">forgot password?</Link>
                 </FormHelperText>
               </VStack>
             </FormControl>
@@ -154,7 +110,7 @@ function SellerLogin(props) {
               variant="solid"
               colorScheme="teal"
               width="full"
-              onClick={submit}
+              //   onClick={submit}
             >
               {submitted ? <Spinner /> : "Login"}
             </Button>
@@ -163,6 +119,6 @@ function SellerLogin(props) {
       </Box>
     </Center>
   );
-}
+};
 
-export default SellerLogin;
+export default UpdateProfile;

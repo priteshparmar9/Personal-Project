@@ -14,7 +14,7 @@ const ProductSchema = mongoose.Schema({
   },
   endTime: {
     type: Date,
-    required: true,
+    required: false,
   },
   title: {
     type: String,
@@ -30,7 +30,7 @@ const ProductSchema = mongoose.Schema({
   },
   minimumPremium: {
     type: Number,
-    required: true,
+    required: false,
   },
   description: {
     type: String,
@@ -48,6 +48,16 @@ const ProductSchema = mongoose.Schema({
   status: {
     type: String,
     default: "Active",
+  },
+  noOfItems: {
+    type: Number,
+    default: 0,
+    required: false,
+  },
+  onAuc: {
+    type: Boolean,
+    default: true,
+    required: false,
   },
 });
 module.exports = mongoose.model("Products", ProductSchema);

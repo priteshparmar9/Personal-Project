@@ -8,7 +8,7 @@ const UserTokenValidator = (req, res, next) => {
     token = token.replace(/^Bearer\s+/, "");
 
     jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
-      if (err) {
+      if (err || err.isSeller) {
         res.status(205).json({ message: "Invalid Token" });
       }
       let user;
@@ -65,7 +65,7 @@ const SellerTokenValidator = (req, res, next) => {
     token = token.replace(/^Bearer\s+/, "");
 
     jwt.verify(token, process.env.DC_KEY, async function (err, decoded) {
-      if (err) {
+      if (err || !decoded.isSeller) {
         res.status(205).json({ message: "Invalid Token" });
       }
       const user = await Seller.findById(decoded._id);

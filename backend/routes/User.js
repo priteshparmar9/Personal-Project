@@ -46,6 +46,7 @@ router.post("/login", async (req, res) => {
               {
                 username: available_users.username,
                 email: available_users.email,
+                isSeller: false,
               },
               process.env.DC_KEY.toString(),
               { expiresIn: "48h" }
