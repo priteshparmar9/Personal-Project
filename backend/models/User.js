@@ -25,6 +25,10 @@ const UserSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    dob: {
+      type: Date,
+      required
+    },
   },
   { timestamps: true }
 );
